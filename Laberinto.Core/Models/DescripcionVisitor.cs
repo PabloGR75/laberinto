@@ -1,0 +1,57 @@
+// DescripcionVisitor.cs
+using System;
+namespace Laberinto.Core.Models
+{
+    public class DescripcionVisitor : IVisitor
+    {
+        public void VisitHabitacion(Habitacion habitacion)
+        {
+            Console.WriteLine($"Habitación {habitacion.Num}");
+        }
+
+        public void VisitArmario(Armario armario)
+        {
+            Console.WriteLine("Armario");
+        }
+
+        public void VisitLaberinto(LaberintoObj laberinto)
+        {
+            Console.WriteLine("Laberinto");
+        }
+
+        public void VisitPuerta(Puerta puerta)
+        {
+            Console.WriteLine(puerta.ToString());
+        }
+
+        public void VisitTunel(Tunel tunel)
+        {
+            Console.WriteLine("Túnel");
+        }
+
+        public void VisitPared(Pared pared)
+        {
+            Console.WriteLine("Pared");
+        }
+
+        public void VisitBomba(Bomba bomba)
+        {
+            Console.WriteLine("¡Bomba!");
+        }
+
+        public void VisitTesoro(Tesoro tesoro)
+        {
+            Console.WriteLine("Tesoro");
+        }
+        public void VisitHoja(Hoja hoja)
+        {
+            Console.WriteLine("Hoja");
+        }
+
+        public void VisitContenedor(Contenedor contenedor)
+        {
+            Console.WriteLine("Contenedor");
+        }
+
+    }
+}
