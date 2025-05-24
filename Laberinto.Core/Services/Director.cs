@@ -1,3 +1,4 @@
+
 using Laberinto.Core.Entidades;
 
 namespace Laberinto.Core.Services
