@@ -1,16 +1,37 @@
+using System;
+using Laberinto.Core.Entidades;
+
 namespace Laberinto.Core.Models
 {
-    /// Representa un armario en el laberinto, un tipo de contenedor especializado
-
     public class Armario : Contenedor
     {
-        /// Indica que este elemento es un armario. (Smalltalk esArmario) </summary>
-        public override bool EsArmario => true;  
+        public int Num { get; private set; }
+        public Habitacion HabitacionMadre { get; private set; }
 
-        /// Acepta un visitante específico para armarios. (Smalltalk visitarContenedor:) </summary>
-        public override void Accept(IVisitor visitor)  
+        // Constructor con número y habitación
+        public Armario(int num, Habitacion habitacion)
+        {
+            Num = num;
+            HabitacionMadre = habitacion;
+            habitacion.AgregarHijo(this); // Te asegura la integración
+        }
+
+        public override bool EsArmario => true;
+
+        public override void VisitarContenedor(IVisitor visitor)
         {
             visitor.VisitArmario(this);
         }
+
+        public override void Accept(IVisitor visitor)
+        {
+            visitor.VisitArmario(this);
+        }
+
+        public override string ToString()
+        {
+            return $"Armario{Num}";
+        }
     }
 }
+

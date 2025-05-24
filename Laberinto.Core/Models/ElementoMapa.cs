@@ -27,6 +27,14 @@ namespace Laberinto.Core.Models
             Comandos.Remove(comando);
         }
 
+        public virtual List<Comando> ObtenerComandos()
+        {
+            return new List<Comando>(Comandos);
+        }
+
+        // Acceso directo a la lista (cuidado con la modificación externa)
+        public List<Comando> ComandosLista => Comandos;
+        
         public virtual void EliminarPosicionDesde(ElementoMapa posiblePadre)
         {
             if (posiblePadre is Contenedor contenedor)
@@ -36,9 +44,16 @@ namespace Laberinto.Core.Models
             Padre = null;
         }
 
+        public virtual void CalcularPosicionDesde(Forma unaForma, Punto unPunto)
+        {
+            // No hace nada por defecto (igual que Smalltalk)
+        }
+
+        public virtual bool EsLaberinto => false;
         public virtual bool EsHabitacion => false;
         public virtual bool EsArmario => false;
         public virtual bool EsPared => false;
+        public virtual bool EsPuerta => false;
         public virtual bool EsTunel => false;
         public virtual bool EsDecorador => false;
         public virtual bool EsBomba => false;

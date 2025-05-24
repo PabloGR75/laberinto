@@ -1,17 +1,29 @@
-// Este.cs
+using System;
+using Laberinto.Core.Entidades;
+
 namespace Laberinto.Core.Models
 {
     public class Este : Orientacion
     {
+        private static readonly Este _instancia = new Este();
+        public static Este Instancia => _instancia;
+        private Este() { }
+
         public override Punto CalcularPosicionDesde(Forma forma)
         {
-            // Mueve una celda hacia el este: x + 1, y igual
-            return forma.Punto.Mover(1, 0);
+            var punto = forma.Punto;
+            var nuevoPunto = new Punto(punto.X + 1, punto.Y);
+            return nuevoPunto;
+        }
+
+        public override void Caminar(Bicho unBicho)
+        {
+            var pos = unBicho.Posicion;
+            pos?.IrAlEste(unBicho);
         }
 
         public override ElementoMapa ObtenerElementoEn(Contenedor contenedor, Forma forma)
         {
-            // Aquí deberías tener algún helper en Contenedor para devolver el elemento en la nueva posición
             var puntoDestino = CalcularPosicionDesde(forma);
             return contenedor.ObtenerElementoEnPosicion(puntoDestino);
         }

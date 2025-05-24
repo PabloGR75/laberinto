@@ -1,24 +1,23 @@
 namespace Laberinto.Core.Models
 {
+    /// Interfaz común para las orientaciones (norte, sur, este, oeste, etc).
     public abstract class Orientacion
     {
-        // Devuelve el nuevo punto al aplicar la orientación sobre una forma (posición + dirección)
+        // Devuelve el nuevo punto al aplicar la orientación sobre una forma
         public abstract Punto CalcularPosicionDesde(Forma forma);
 
-        // Camina (puedes hacer que sea igual que calcular posición desde, si es así en tu modelo)
-        public virtual Punto Caminar(Forma forma)
-        {
-            return CalcularPosicionDesde(forma);
-        }
+        // Caminar (por defecto, puedes hacer que devuelva la posición calculada o dejarlo abstracto)
+        public abstract void Caminar(Entidades.Bicho unBicho);
 
-        // Métodos abstractos a implementar según el diseño Smalltalk:
+        // Devuelve el elemento del contenedor en esta orientación
         public abstract ElementoMapa ObtenerElementoEn(Contenedor contenedor, Forma forma);
 
+        // Asigna un elemento a la posición de esta orientación en el contenedor
         public abstract void PonerElementoEn(Contenedor contenedor, ElementoMapa elemento, Forma forma);
 
+        // Recorre el elemento en la posición de esta orientación en el contenedor
         public abstract void Recorrer(Contenedor contenedor, Forma forma, Action<ElementoMapa> accion);
 
         public override string ToString() => GetType().Name;
     }
 }
-

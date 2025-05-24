@@ -1,28 +1,18 @@
-using Laberinto.Core.Entidades;
-
 namespace Laberinto.Core.Models
 {
     public class ParedBomba : Pared
     {
-        private bool activa;
+        // Variable de instancia que se llama activa
+        public bool Activa { get; set; } = true;
 
-        public ParedBomba()
+        public override string ToString()
         {
-            activa = true;
-        }
-
-        public override void Entrar(Ente quien)
-        {
-            if (activa)
-            {
-                quien.HeMuerto();
-                activa = false;
-            }
+            return "ParedBomba";
         }
 
         public override void Accept(IVisitor visitor)
         {
-            visitor.VisitPared(this);
+            visitor.VisitParedBomba(this);
         }
     }
 }

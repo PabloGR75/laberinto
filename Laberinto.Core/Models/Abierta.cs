@@ -1,17 +1,27 @@
+using System;
+
 namespace Laberinto.Core.Models
 {
+    // Estado de la puerta abierta: permite el paso
     public class Abierta : EstadoPuerta
     {
-        public override bool EstaAbierta => true;
-
-        public override void Abrir(Puerta puerta)
+        public override void Abrir(Puerta unaPuerta)
         {
-            // Ya está abierta, no hace nada.
+            // Ya está abierta
+            // (No se hace nada)
         }
 
-        public override void Cerrar(Puerta puerta)
+        public override void Cerrar(Puerta unaPuerta)
         {
-            puerta.Estado = new Cerrada();
+            Console.WriteLine($"{unaPuerta} cerrada");
+            unaPuerta.Estado = new Cerrada();
         }
+
+        public override void Entrar(Entidades.Ente alguien, Puerta unaPuerta)
+        {
+            unaPuerta.PuedeEntrar(alguien);
+        }
+
+        public override bool EstaAbierta() => true;
     }
 }

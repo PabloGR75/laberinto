@@ -10,7 +10,7 @@ namespace Laberinto.Core.Models
         void VisitPuerta(Puerta puerta);
         void VisitTunel(Tunel tunel);
         void VisitPared(Pared pared);
-        void VisitTesoro(Tesoro tesoro);
+        void VisitParedBomba(ParedBomba paredBomba);
         void VisitHoja(Hoja hoja);
         void VisitContenedor(Contenedor contenedor);
     }

@@ -1,12 +1,19 @@
-using Laberinto.Core.Models;
 using Laberinto.Core.Entidades;
 
-public abstract class Comando
+namespace Laberinto.Core.Models
 {
-  protected Ente Receptor { get; }
-  protected Comando(Ente receptor)
+  /// Interfaz común para los comandos del laberinto (Command pattern).
+  public abstract class Comando
   {
-    Receptor = receptor;
+    // Receptor sobre el que se ejecuta el comando.
+    public ElementoMapa Receptor { get; set; }
+
+    protected Comando(ElementoMapa receptor)
+    {
+      Receptor = receptor;
+    }
+
+    // Método de ejecución polimórfico
+    public abstract void Ejecutar(Ente quien);
   }
-  public abstract void Ejecutar();
 }

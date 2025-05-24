@@ -1,29 +1,13 @@
-using Laberinto.Core.Entidades;
+using System;
 
 namespace Laberinto.Core.Models
 {
-    public abstract class Decorator : ElementoMapa
+    // Decorator es una Hoja que envuelve (decora) un ElementoMapa
+    public abstract class Decorator : Hoja
     {
-        protected ElementoMapa Componente { get; set; }
+        public ElementoMapa EM { get; set; }
 
-        protected Decorator(ElementoMapa componente)
-        {
-            Componente = componente;
-        }
-
-        public override bool EsDecorador => true;
-
-        public override void Entrar(Ente quien)
-        {
-            if (Componente != null)
-                Componente.Entrar(quien);
-        }
-
-        public override void Accept(IVisitor visitor)
-        {
-            if (Componente != null)
-                Componente.Accept(visitor);
-        }
+        protected Decorator() { }
+        protected Decorator(ElementoMapa em) { EM = em; }
     }
 }
-

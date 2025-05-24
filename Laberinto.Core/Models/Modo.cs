@@ -1,27 +1,46 @@
-// Modo.cs
 using Laberinto.Core.Models;
-using Laberinto.Core.Entidades;
 
-namespace Laberinto.Core.Models
+namespace Laberinto.Core.Entidades
 {
-    /// <summary>
-    /// Representa una estrategia de movimiento para un bicho.
-    /// </summary>
+    /// Estrategia base para los Bicho (Strategy Pattern).
     public abstract class Modo
     {
-        /// <summary>
-        /// Lógica de movimiento según el modo.
-        /// </summary>
-        public abstract void Mover(Bicho bicho, Orientacion orientacion);
-    }
-
-    // Ejemplo de modo concreto: modo normal
-    public class ModoNormal : Modo
-    {
-        public override void Mover(Bicho bicho, Orientacion orientacion)
+        // Template method: define el flujo principal
+        public virtual void Actua(Bicho unBicho)
         {
-            bicho.Mover(orientacion);
+            Dormir(unBicho);
+            Caminar(unBicho);
+            Atacar(unBicho);
+        }
+
+        // Hook methods para ser sobrescritos por subclases:
+        public virtual void Dormir(Bicho unBicho)
+        {
+            // Por defecto, no hacer nada (o lanzar NotImplementedException si es obligatorio sobrescribir)
+        }
+
+        public virtual void Caminar(Bicho unBicho)
+        {
+            // Elegir una orientación aleatoria de la posición actual y caminar
+            var or = unBicho.ObtenerOrientacion();
+            // Caminar hacia esa orientación
+            or?.Caminar(unBicho);
+        }
+
+        public virtual void Atacar(Bicho unBicho)
+        {
+            unBicho.Atacar();
+        }
+
+        // Consulta: ¿es de este tipo?
+        public virtual bool EsAgresivo() => false;
+        public virtual bool EsPerezoso() => false;
+
+        // Búsqueda de túnel: override en subclases si quieres comportamiento especial
+        public virtual Tunel BuscarTunelBicho(Bicho unBicho)
+        {
+            // Comportamiento predeterminado: no hacer nada
+            return null;
         }
     }
-    // Puedes implementar otros modos concretos según sea necesario.
 }

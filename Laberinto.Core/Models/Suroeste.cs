@@ -1,11 +1,25 @@
+using System;
+using Laberinto.Core.Entidades;
+
 namespace Laberinto.Core.Models
 {
     public class Suroeste : Orientacion
     {
+        private static readonly Suroeste _instancia = new Suroeste();
+        public static Suroeste Instancia => _instancia;
+        private Suroeste() { }
+
         public override Punto CalcularPosicionDesde(Forma forma)
         {
-            // Mueve una celda hacia el suroeste: x -1, y + 1
-            return forma.Punto.Mover(-1, 1);
+            var punto = forma.Punto;
+            var nuevoPunto = new Punto(punto.X - 1, punto.Y + 1);
+            return nuevoPunto;
+        }
+
+        public override void Caminar(Bicho unBicho)
+        {
+            var pos = unBicho.Posicion;
+            pos?.IrAlSuroeste(unBicho);
         }
 
         public override ElementoMapa ObtenerElementoEn(Contenedor contenedor, Forma forma)

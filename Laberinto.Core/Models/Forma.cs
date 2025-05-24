@@ -1,50 +1,103 @@
+using System;
+using System.Collections.Generic;
+using Laberinto.Core.Entidades;
+
 namespace Laberinto.Core.Models
 {
-    // Clase base abstracta
     public abstract class Forma
     {
-        public string Nombre { get; protected set; }
-        public int Lados { get; protected set; }
-        public List<Orientacion> Orientaciones { get; protected set; }
-        public (int ancho, int alto) Extent { get; protected set; } // 'extent' en Smalltalk
+        protected List<Orientacion> orientaciones;
+        public Punto Punto { get; set; }
+        public object Extent { get; set; }
+        public int Num { get; set; }
+        public Contenedor Contenedor { get; set; }
 
-        public Punto Punto { get; protected set; }
-        public Orientacion OrientacionActual { get; protected set; }
-
-        protected Forma(string nombre, int lados, IEnumerable<Orientacion> orientaciones, int ancho = 0, int alto = 0)
+        protected Forma()
         {
-            Nombre = nombre;
-            Lados = lados;
-            Orientaciones = new List<Orientacion>(orientaciones);
-            Extent = (ancho, alto);
-        }
-        protected Forma(string nombre, int lados, IEnumerable<Orientacion> orientaciones, Punto punto, Orientacion orientacion, int ancho = 0, int alto = 0)
-                    : this(nombre, lados, orientaciones, ancho, alto)
-        {
-            Punto = punto;
-            OrientacionActual = orientacion;
+            orientaciones = new List<Orientacion>();
         }
 
-        protected Forma() : this("", 0, new List<Orientacion>(), 0, 0) { }
-
-        // Método Smalltalk: agregarOrientacion:
-        public void AgregarOrientacion(Orientacion orientacion)
+        public virtual void AgregarOrientacion(Orientacion unaOr)
         {
-            if (!Orientaciones.Contains(orientacion))
-                Orientaciones.Add(orientacion);
+            orientaciones.Add(unaOr);
         }
 
-        // Devuelve una nueva Forma movida en la orientación actual (avanzar)
-        public abstract Forma Avanzar();
+        public virtual void CalcularPosicion()
+        {
+            foreach (var or in orientaciones)
+            {
+                or.CalcularPosicionDesde(this);
+            }
+        }
 
-        // Devuelve una nueva Forma en la misma posición pero con nueva orientación
-        public abstract Forma CambiarOrientacion(Orientacion nuevaOrientacion);
+        public object GetExtent()
+        {
+            return Extent;
+        }
 
-        // Devuelve el punto resultante de calcularPosicion desde esta forma en la orientación dada
-        public abstract Punto CalcularPosicion(Orientacion orientacion);
+        public void SetExtent(object valor)
+        {
+            Extent = valor;
+        }
 
-        // Pone un elemento en la forma en la orientación dada (Smalltalk: ponerenor:elemento:)
-        // (La implementación puede variar según cómo modeles el mapa)
-        public abstract void PonerEnOr(Contenedor contenedor, Orientacion orientacion, ElementoMapa elemento);
+        public int GetNum()
+        {
+            return Num;
+        }
+
+        public void SetNum(int valor)
+        {
+            Num = valor;
+        }
+
+        public List<Orientacion> ObtenerOrientaciones()
+        {
+            return orientaciones;
+        }
+
+        public virtual Orientacion ObtenerOrientacion()
+        {
+            if (orientaciones.Count == 0) return null;
+            var rand = new Random();
+            int ind = rand.Next(0, orientaciones.Count);
+            return orientaciones[ind];
+        }
+
+        public List<Orientacion> GetOrientaciones()
+        {
+            return orientaciones;
+        }
+
+        public void SetOrientaciones(List<Orientacion> lista)
+        {
+            orientaciones = lista;
+        }
+
+        public virtual ElementoMapa ObtenerElementoOr(Orientacion unaOr)
+        {
+            if (Contenedor == null)
+                throw new InvalidOperationException("Forma no tiene un contenedor asignado.");
+            return unaOr.ObtenerElementoEn(Contenedor, this);
+        }
+
+        public virtual void PonerEnOr(Orientacion unaOr, ElementoMapa unEM)
+        {
+            if (Contenedor == null)
+                throw new InvalidOperationException("Forma no tiene un contenedor asignado.");
+            unaOr.PonerElementoEn(Contenedor, unEM, this);
+        }
+
+        // En Smalltalk: irAlNorte:alguien es responsabilidad de subclases
+        public virtual void IrAlNorte(Ente alguien)
+        {
+            throw new NotImplementedException();
+        }
+        public virtual void IrAlSur(Ente alguien) { }
+        public virtual void IrAlEste(Ente alguien) { }
+        public virtual void IrAlOeste(Ente alguien) { }
+        public virtual void IrAlNoreste(Ente alguien) { }
+        public virtual void IrAlNoroeste(Ente alguien) { }
+        public virtual void IrAlSureste(Ente alguien) { }
+        public virtual void IrAlSuroeste(Ente alguien) { }
     }
 }

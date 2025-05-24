@@ -1,22 +1,20 @@
-// Perezoso.cs
 using Laberinto.Core.Models;
+using System;
 
 namespace Laberinto.Core.Entidades
 {
-    /// <summary>
-    /// Un bicho que solo se mueve la mitad de las veces.
-    /// </summary>
-    public class Perezoso : Bicho
+    public class Perezoso : Modo
     {
-        private static readonly Random _random = new Random();
-
-        public Perezoso(JuegoLaberinto? juego = null) : base(juego) { }
-
-        public override void Mover(Orientacion unaOrientacion)
+        public override void Dormir(Bicho unBicho)
         {
-            if (_random.Next(2) == 0)
-                base.Mover(unaOrientacion);
-            // Si no, no se mueve.
+            // 50% de las veces el bicho perezoso duerme y no actúa
+            if (new Random().NextDouble() < 0.5)
+            {
+                // El bicho "duerme" y no sigue con la acción
+                return;
+            }
         }
+
+        public override bool EsPerezoso() => true;
     }
 }

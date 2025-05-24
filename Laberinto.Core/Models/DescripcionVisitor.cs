@@ -34,15 +34,16 @@ namespace Laberinto.Core.Models
             Console.WriteLine("Pared");
         }
 
+        public void VisitParedBomba(ParedBomba paredBomba)
+        {
+            Console.WriteLine("Pared Bomba");
+        }
+
         public void VisitBomba(Bomba bomba)
         {
             Console.WriteLine("¡Bomba!");
         }
 
-        public void VisitTesoro(Tesoro tesoro)
-        {
-            Console.WriteLine("Tesoro");
-        }
         public void VisitHoja(Hoja hoja)
         {
             Console.WriteLine("Hoja");

@@ -1,14 +1,22 @@
-using Laberinto.Core.Entidades;
+using System;
 
 namespace Laberinto.Core.Models
 {
-    public class Pared : Hoja
+    public class Pared : ElementoMapa
     {
+        // Es un EM que no se puede atravesar
+
+        public override void Entrar(Entidades.Ente alguien)
+        {
+            // Simula el mensaje de Smalltalk: ha chocado con una pared
+            Console.WriteLine($"{alguien} ha chocado con una pared.");
+        }
+
         public override bool EsPared => true;
 
-        public override void Entrar(Ente quien)
+        public override string ToString()
         {
-            // No se puede entrar en una pared.
+            return "Pared";
         }
 
         public override void Accept(IVisitor visitor)

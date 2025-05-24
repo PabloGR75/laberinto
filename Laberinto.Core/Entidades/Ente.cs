@@ -1,130 +1,155 @@
-// Ente.cs
 using Laberinto.Core.Models;
 
 namespace Laberinto.Core.Entidades
 {
-    /// <summary>
-    /// Representa un ente (jugador, bicho, personaje, etc.) en el laberinto.
-    /// Traducción fiel del modelo Smalltalk.
-    /// </summary>
-    public class Ente
+    /// Clase base para todos los entes del laberinto (Bicho, Personaje, etc).
+    public abstract class Ente
     {
-        public int Poder { get; protected set; }
-        public Habitacion Posicion { get; protected set; }
-        public int Vidas { get; protected set; }
-        public JuegoLaberinto Juego { get; protected set; }
-        public EstadoEnte Estado { get; set; }
+        private int _vidas;
+        private int _poder;
+        private Habitacion _posicion;
+        private JuegoLaberinto _juego;
+        private EstadoEnte _estadoEnte;
 
-        public Ente(JuegoLaberinto? juego = null)
+        // --- PROPIEDADES ---
+        public int Vidas
         {
-            // Smalltalk: initialize
+            get => _vidas;
+            set
+            {
+                _vidas = value;
+                // Notificación de cambio si usas INotifyPropertyChanged
+            }
+        }
+
+        public int Poder
+        {
+            get => _poder;
+            set => _poder = value;
+        }
+
+        public Habitacion Posicion
+        {
+            get => _posicion;
+            set
+            {
+                _posicion = value;
+                // Notificación de cambio si es necesario
+            }
+        }
+
+        public JuegoLaberinto Juego
+        {
+            get => _juego;
+            set => _juego = value;
+        }
+
+        public EstadoEnte EstadoEnte
+        {
+            get => _estadoEnte;
+            set => _estadoEnte = value;
+        }
+
+        // --- CONSTRUCTOR ---
+        protected Ente(JuegoLaberinto juego = null)
+        {
+            Inicialize(juego);
+        }
+
+        protected void Inicialize(JuegoLaberinto juego = null)
+        {
+            Vidas = 5;
             Poder = 1;
-            Posicion = null;
-            Vidas = 1;
-            Estado = new Vivo();
+            EstadoEnte = new Vivo();
             Juego = juego;
         }
 
-        // --- Métodos traducidos fielmente del Smalltalk ---
-
-        /// <summary>
-        /// El ente actúa en su turno (lógica polimórfica según estado).
-        /// </summary>
-        public virtual void Actua()
+        // --- ATAQUES Y VIDA ---
+        public virtual void Atacar()
         {
-            Estado.Actua(this);
+            EstadoEnte.Atacar(this);
         }
 
-        /// <summary>
-        /// Ataca a otro ente (lógica polimórfica según estado).
-        /// </summary>
-        public virtual void Atacar(Ente objetivo)
+        public virtual void EsAtacadoPor(Ente alguien)
         {
-            Estado.Atacar(this, objetivo);
-        }
-
-        /// <summary>
-        /// Recibe un ataque de otro ente.
-        /// </summary>
-        public virtual void EsAtacadoPor(Ente otroEnte)
-        {
-            PerderVida();
-        }
-
-        /// <summary>
-        /// Pierde una vida y comprueba si ha muerto.
-        /// </summary>
-        public virtual void PerderVida()
-        {
-            Vidas--;
-            if (Vidas == 0)
+            // Print de diagnóstico:
+            // Console.WriteLine($"{this} es atacado por {alguien}");
+            Vidas -= alguien.Poder;
+            // Console.WriteLine($"Vidas: {Vidas}");
+            if (Vidas <= 0)
             {
                 HeMuerto();
             }
         }
-
-        /// <summary>
-        /// Cambia el estado a muerto.
-        /// </summary>
-        public virtual void HeMuerto()
-        {
-            Estado = new Muerto();
-        }
-
-        /// <summary>
-        /// Indica si el ente está vivo.
-        /// </summary>
-        public virtual bool EstaVivo()
-        {
-            return Estado.EstaVivo;
-        }
-
-        /// <summary>
-        /// Recibe un mensaje. Por defecto, no hace nada.
-        /// </summary>
-        public virtual void Avisar(string mensaje)
-        {
-            // Por defecto, vacío. Override en subclases si hace falta.
-        }
-
-        /// <summary>
-        /// Busca un túnel desde la posición actual.
-        /// </summary>
-        public virtual Tunel BuscarTunel()
-        {
-            return Posicion?.BuscarTunel();
-        }
-
-        /// <summary>
-        /// Clona el laberinto desde el juego.
-        /// </summary>
         public virtual LaberintoObj JuegoClonarLaberinto()
         {
             return Juego?.ClonarLaberinto();
         }
 
-        /// <summary>
-        /// Indica si puede atacar a otro ente (ambos vivos).
-        /// </summary>
-        public virtual bool PuedeAtacar(Ente unEnte)
+        public virtual void HeMuerto()
         {
-            return EstaVivo() && unEnte.EstaVivo();
+            EstadoEnte = new Muerto();
+            Avisar();
         }
 
-        /// <summary>
-        /// Crea un nuevo laberinto desde el juego.
-        /// </summary>
-        public virtual LaberintoObj CrearNuevoLaberinto()
+        public virtual bool EstaVivo() => Vidas > 0;
+
+        // --- SUBCLASS RESPONSIBILITY ---
+        public abstract void Avisar(string mensaje = null);
+
+        public virtual void PuedeActuar()
         {
-            return Juego?.CrearNuevoLaberinto();
+            // Por defecto, vacío. Sobrescribir en Bicho si corresponde.
         }
 
-        /// <summary>
-        /// Entra en una habitación.
-        /// </summary>
+        // Acción
+        public virtual void PuedeAtacar()
+        {
+            // Por defecto, vacío o lógica base
+        }
+
+        // Consulta (devuelve bool, ya la tienes si la necesitas en otras partes)
+        public virtual bool PuedeAtacarA(Ente objetivo)
+        {
+            return false; // Por defecto, o tu lógica base
+        }
+
+        // --- MÉTODOS DE TÚNEL Y LABERINTO ---
+        public virtual Tunel BuscarTunel()
+        {
+            // Por defecto, no hace nada, sobrescribir en subclases si corresponde
+            return null;
+        }
+
+        public virtual void Actua() { }
+
+        public virtual LaberintoObj CrearNuevoLaberinto(Tunel tunel)
+        {
+            // Implementa si necesitas crear un nuevo laberinto a partir de un túnel
+            return null;
+        }
+
+        public virtual LaberintoObj JuegoClonaLaberinto()
+        {
+            return Juego?.ClonarLaberinto();
+        }
+
         public virtual void EntrarEn(Habitacion unaHabitacion)
         {
             Posicion = unaHabitacion;
+            // Aquí cualquier lógica adicional si la necesitas
         }
+        
+        // --- SETTERS Y GETTERS (Smalltalk style, solo si los necesitas explícitos) ---
+        public int GetVidas() => Vidas;
+        public void SetVidas(int v) => Vidas = v;
+        public int GetPoder() => Poder;
+        public void SetPoder(int p) => Poder = p;
+        public Habitacion GetPosicion() => Posicion;
+        public void SetPosicion(Habitacion h) => Posicion = h;
+        public JuegoLaberinto GetJuego() => Juego;
+        public void SetJuego(JuegoLaberinto j) => Juego = j;
+        public EstadoEnte GetEstadoEnte() => EstadoEnte;
+        public void SetEstadoEnte(EstadoEnte e) => EstadoEnte = e;
     }
 }

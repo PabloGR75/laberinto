@@ -1,41 +1,30 @@
-using System.Collections.Generic;
+using Laberinto.Core.Entidades;
+using Laberinto.Core.Models;
 
 namespace Laberinto.Core.Models
 {
     public class Cuadrado : Forma
     {
-        public Punto Punto { get; private set; }
-        public Orientacion OrientacionActual { get; private set; }
+        public ElementoMapa Norte { get; set; }
+        public ElementoMapa Sur { get; set; }
+        public ElementoMapa Este { get; set; }
+        public ElementoMapa Oeste { get; set; }
 
-        public Cuadrado(Punto punto, Orientacion orientacion)
-            : base("Cuadrado", 4, new List<Orientacion> { new Norte(), new Sur(), new Este(), new Oeste() }, 2, 2)
+        public override void IrAlNorte(Ente alguien)
         {
-            Punto = punto;
-            OrientacionActual = orientacion;
+            Norte?.Entrar(alguien);
         }
-
-        public override Forma Avanzar()
+        public void IrAlSur(Ente alguien)
         {
-            // Crea una nueva forma cuadrada avanzando en la orientación actual
-            var nuevoPunto = OrientacionActual.CalcularPosicionDesde(this);
-            return new Cuadrado(nuevoPunto, OrientacionActual);
+            Sur?.Entrar(alguien);
         }
-
-        public override Forma CambiarOrientacion(Orientacion nuevaOrientacion)
+        public void IrAlEste(Ente alguien)
         {
-            return new Cuadrado(Punto, nuevaOrientacion);
+            Este?.Entrar(alguien);
         }
-
-        public override Punto CalcularPosicion(Orientacion orientacion)
+        public void IrAlOeste(Ente alguien)
         {
-            return orientacion.CalcularPosicionDesde(this);
-        }
-
-        public override void PonerEnOr(Contenedor contenedor, Orientacion orientacion, ElementoMapa elemento)
-        {
-            var puntoDestino = orientacion.CalcularPosicionDesde(this);
-            contenedor.PonerElementoEnPosicion(elemento, puntoDestino);
+            Oeste?.Entrar(alguien);
         }
     }
-
 }

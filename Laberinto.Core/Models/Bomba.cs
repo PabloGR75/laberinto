@@ -1,38 +1,49 @@
+using System;
 using Laberinto.Core.Entidades;
 
 namespace Laberinto.Core.Models
 {
     public class Bomba : Decorator
     {
-        private bool explotada;
+        public bool Activa { get; set; }
 
-        public Bomba(ElementoMapa componente) : base(componente)
+        public Bomba() : base()
         {
-            explotada = false;
+            Activa = false;
         }
 
-        public override bool EsBomba => true;
-
-        public override void Entrar(Ente quien)
+        public Bomba(ElementoMapa em) : base(em)
         {
-            Explotar(quien);
-            base.Entrar(quien);
+            Activa = false;
         }
 
-        void Explotar(Ente quien)
+        public void Activar()
         {
-            if (!explotada)
+            // Mensaje de depuración: bomba activa
+            Console.WriteLine("Bomba activa");
+            Activa = true;
+        }
+
+        public override void Entrar(Ente alguien)
+        {
+            if (Activa)
             {
-                quien.HeMuerto();
-                explotada = true;
+                Console.WriteLine($"{alguien} ha chocado con una bomba.");
+                // Aquí puedes definir lógica de explosión o daño
+            }
+            else
+            {
+                EM?.Entrar(alguien);
             }
         }
 
-        public bool Explotada => explotada;
+        public override bool EsBomba => true;
 
         public override void Accept(IVisitor visitor)
         {
             visitor.VisitBomba(this);
         }
+
+        public override string ToString() => "Bomba";
     }
 }

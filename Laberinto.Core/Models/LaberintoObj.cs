@@ -1,12 +1,40 @@
+using System;
+using System.Collections.Generic;
 using Laberinto.Core.Entidades;
 
 namespace Laberinto.Core.Models
 {
-    /// El laberinto, contenedor de habitaciones y demás elementos.
-
+    // El laberinto, contenedor de habitaciones y demás elementos.
     public class LaberintoObj : Contenedor
     {
-        /// Devuelve la habitación número 1 (puedes ampliar para buscar por número).
+        public override bool EsLaberinto => true;
+
+        public override void VisitarContenedor(IVisitor visitor)
+        {
+            visitor.VisitLaberinto(this);
+        }
+
+        public LaberintoObj()
+        {
+            // Puede haber inicialización específica aquí si la necesitas.
+        }
+
+        // Añade una habitación al laberinto.
+        public void AgregarHabitacion(Habitacion unaHabitacion)
+        {
+            Hijos.Add(unaHabitacion);
+            unaHabitacion.Padre = this;
+        }
+
+        // Elimina una habitación.
+        public void EliminarHabitacion(Habitacion unaHabitacion)
+        {
+            Hijos.Remove(unaHabitacion);
+            if (unaHabitacion.Padre == this)
+                unaHabitacion.Padre = null;
+        }
+
+        // Devuelve la habitación número 'num' (por número de habitación).
         public Habitacion ObtenerHabitacion(int num)
         {
             foreach (var hijo in Hijos)
@@ -17,24 +45,55 @@ namespace Laberinto.Core.Models
             return null;
         }
 
-        /// Hace que un ente entre en la habitación 1.
+        // Hace que un ente entre en la habitación 1.
         public override void Entrar(Ente quien)
         {
             var hab1 = ObtenerHabitacion(1);
             hab1?.Entrar(quien);
         }
 
-        /// Permite recorrer el laberinto aplicando un bloque de acción.
+        // Recorre el laberinto aplicando un bloque de acción a cada elemento.
         public override void Recorrer(Action<ElementoMapa> bloque)
         {
             bloque(this);
             foreach (var hijo in Hijos)
                 hijo.Recorrer(bloque);
+            // NOTA: no recorre orientaciones porque en Smalltalk tampoco lo hace aquí.
         }
 
+        // Visitor pattern
         public override void Accept(IVisitor visitor)
         {
             visitor.VisitLaberinto(this);
+            // Si quieres recorrer los hijos también con el visitor aquí, descomenta:
+            // foreach (var hijo in Hijos)
+            //     hijo.Accept(visitor);
+        }
+
+        // Abrir todas las puertas del laberinto (patrón Command en Smalltalk).
+        public void AbrirPuertas()
+        {
+            Recorrer(each =>
+            {
+                if (each.EsPuerta && each is Puerta puerta)
+                    puerta.Abrir();
+            });
+        }
+
+        // Cerrar todas las puertas del laberinto.
+        public void CerrarPuertas()
+        {
+            Recorrer(each =>
+            {
+                if (each.EsPuerta && each is Puerta puerta)
+                    puerta.Cerrar();
+            });
+        }
+
+        // Impresión sencilla del laberinto.
+        public override string ToString()
+        {
+            return "Laberinto";
         }
     }
 }

@@ -1,50 +1,30 @@
-using System.Collections.Generic;
+using Laberinto.Core.Entidades;
+using Laberinto.Core.Models;
 
 namespace Laberinto.Core.Models
 {
     public class Rombo : Forma
     {
-        public Punto Punto { get; private set; }
-        public Orientacion OrientacionActual { get; private set; }
+        public ElementoMapa Noreste { get; set; }
+        public ElementoMapa Noroeste { get; set; }
+        public ElementoMapa Sureste { get; set; }
+        public ElementoMapa Suroeste { get; set; }
 
-        public Rombo(Punto punto, Orientacion orientacion)
-            : base(
-                "Rombo",
-                4,
-                new List<Orientacion>
-                {
-                    new Noreste(),
-                    new Noroeste(),
-                    new Sureste(),
-                    new Suroeste()
-                },
-                2, 2 // O el tamaño (ancho, alto) adecuado para tu modelo
-            )
+        public void IrAlNoreste(Ente alguien)
         {
-            Punto = punto;
-            OrientacionActual = orientacion;
+            Noreste?.Entrar(alguien);
         }
-
-        public override Forma Avanzar()
+        public void IrAlNoroeste(Ente alguien)
         {
-            var nuevoPunto = OrientacionActual.CalcularPosicionDesde(this);
-            return new Rombo(nuevoPunto, OrientacionActual);
+            Noroeste?.Entrar(alguien);
         }
-
-        public override Forma CambiarOrientacion(Orientacion nuevaOrientacion)
+        public void IrAlSureste(Ente alguien)
         {
-            return new Rombo(Punto, nuevaOrientacion);
+            Sureste?.Entrar(alguien);
         }
-
-        public override Punto CalcularPosicion(Orientacion orientacion)
+        public void IrAlSuroeste(Ente alguien)
         {
-            return orientacion.CalcularPosicionDesde(this);
-        }
-
-        public override void PonerEnOr(Contenedor contenedor, Orientacion orientacion, ElementoMapa elemento)
-        {
-            var puntoDestino = orientacion.CalcularPosicionDesde(this);
-            contenedor.PonerElementoEnPosicion(elemento, puntoDestino);
+            Suroeste?.Entrar(alguien);
         }
     }
 }
