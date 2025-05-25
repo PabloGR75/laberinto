@@ -18,27 +18,33 @@ namespace Laberinto.Core.Services
             juegoActual = new JuegoLaberinto(laberintoActual);
         }
 
-        public virtual void ConstruirHabitacion(int num)
+        public virtual void FabricarLaberinto()
+        {
+            InicializarLaberinto();
+        }
+
+        public virtual object FabricarHabitacion(int num)
         {
             var habitacion = new Habitacion(num);
             laberintoActual.AgregarHijo(habitacion);
+            return habitacion;
         }
 
-        public void ConstruirArmario(int numArmario, int numHabitacion)
+        public object FabricarArmario(int numArmario, object padre)
         {
+            var habitacion = padre as Habitacion;
             // Obtener la habitación de destino
-            var habitacion = laberintoActual.ObtenerHabitacion(numHabitacion);
             if (habitacion == null)
-                throw new InvalidOperationException($"Habitación {numHabitacion} no existe.");
+                throw new InvalidOperationException("El objeto pasado como padre no es una Habitación válida.");
 
             // Crear el armario (se añade automáticamente como hijo de la habitación)
             var armario = new Armario(numArmario, habitacion);
 
             // Si quieres, puedes devolver el armario por si necesitas más operaciones
-            // return armario;
+            return armario;
         }
 
-        public virtual void ConstruirPuerta(int numHabA, int numHabB)
+        public virtual void FabricarPuerta(int numHabA, int numHabB)
         {
             var habA = laberintoActual.ObtenerHabitacion(numHabA);
             var habB = laberintoActual.ObtenerHabitacion(numHabB);
@@ -51,13 +57,31 @@ namespace Laberinto.Core.Services
             }
         }
 
-        public virtual void ConstruirBombaEn(Contenedor contenedor)
+        public virtual void FabricarPuertaL1(int numHabA, string orA, int numHabB, string orB)
+        {
+            // Asumiendo que orientación son strings tipo "Norte", "Sur", etc.
+            var habA = laberintoActual.ObtenerHabitacion(numHabA);
+            var habB = laberintoActual.ObtenerHabitacion(numHabB);
+            if (habA != null && habB != null)
+            {
+                var puerta = new Puerta(habA, habB);
+
+                // Obtener la orientación (aquí necesitarías una función auxiliar)
+                var orientA = ObtenerOrientacionDesdeString(orA);
+                var orientB = ObtenerOrientacionDesdeString(orB);
+
+                habA.AgregarPuerta(orientA, puerta);
+                habB.AgregarPuerta(orientB, puerta);
+            }
+        }
+
+        public virtual void FabricarBombaEn(Contenedor contenedor)
         {
             var bomba = new Bomba();
             contenedor.AgregarHijo(bomba);
         }
 
-        public virtual void ConstruirTunelEn(Contenedor contenedor)
+        public virtual void FabricarTunelEn(Contenedor contenedor)
         {
             var tunel = new Tunel();
             contenedor.AgregarHijo(tunel);
@@ -81,7 +105,7 @@ namespace Laberinto.Core.Services
             return forma;
         }
 
-        public virtual void ConstruirFormaCuadrada(Contenedor contenedor)
+        public virtual void FabricarFormaCuadrada(Contenedor contenedor)
         {
             var forma = new Cuadrado();
             forma.AgregarOrientacion(Norte.Instancia);
@@ -91,7 +115,7 @@ namespace Laberinto.Core.Services
             contenedor.Forma = forma;
         }
 
-        public virtual void ConstruirFormaRombo(Contenedor contenedor)
+        public virtual void FabricarFormaRombo(Contenedor contenedor)
         {
             var forma = new Rombo();
             forma.AgregarOrientacion(Noreste.Instancia);
@@ -101,7 +125,7 @@ namespace Laberinto.Core.Services
             contenedor.Forma = forma;
         }
 
-        public void ConstruirBichoAgresivo(int numHabitacion)
+        public void FabricarBichoAgresivo(int numHabitacion)
         {
             var habitacion = laberintoActual.ObtenerHabitacion(numHabitacion);
             if (habitacion == null)
@@ -114,7 +138,7 @@ namespace Laberinto.Core.Services
             // Aquí podrías añadirlo a la colección de bichos del juego si hace falta
         }
 
-        public void ConstruirBichoPerezoso(int numHabitacion)
+        public void FabricarBichoPerezoso(int numHabitacion)
         {
             var habitacion = laberintoActual.ObtenerHabitacion(numHabitacion);
             if (habitacion == null)
@@ -127,6 +151,14 @@ namespace Laberinto.Core.Services
             // Aquí podrías añadirlo a la colección de bichos del juego si hace falta
         }
 
+        public virtual void FabricarBichoModo(string modo, int posicion)
+        {
+            if (modo.ToLower() == "agresivo")
+                FabricarBichoAgresivo(posicion);
+            else
+                FabricarBichoPerezoso(posicion);
+        }
+
         public virtual LaberintoObj ObtenerLaberinto()
         {
             return laberintoActual;
@@ -135,6 +167,23 @@ namespace Laberinto.Core.Services
         public virtual JuegoLaberinto ObtenerJuego()
         {
             return juegoActual;
+        }
+
+        // Helper para obtener orientación
+        private Orientacion ObtenerOrientacionDesdeString(string nombre)
+        {
+            switch (nombre.ToLower())
+            {
+                case "norte": return Norte.Instancia;
+                case "sur": return Sur.Instancia;
+                case "este": return Este.Instancia;
+                case "oeste": return Oeste.Instancia;
+                case "noreste": return Noreste.Instancia;
+                case "noroeste": return Noroeste.Instancia;
+                case "sureste": return Sureste.Instancia;
+                case "suroeste": return Suroeste.Instancia;
+                default: throw new ArgumentException($"Orientación desconocida: {nombre}");
+            }
         }
     }
 }

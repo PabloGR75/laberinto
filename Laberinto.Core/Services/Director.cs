@@ -1,5 +1,6 @@
 
 using Laberinto.Core.Entidades;
+using Laberinto.Core.Models;
 
 namespace Laberinto.Core.Services
 {
@@ -80,10 +81,10 @@ namespace Laberinto.Core.Services
                 con = Builder.FabricarHabitacion(Convert.ToInt32(unDic["num"]));
             else if (tipo == "armario")
                 con = Builder.FabricarArmario(Convert.ToInt32(unDic["num"]), padre);
-            else if (tipo == "bomba")
-                Builder.FabricarBombaEn(padre);
-            else if (tipo == "tunel")
-                Builder.FabricarTunelEn(padre);
+            else if (tipo == "bomba" && padre is Contenedor contenedorBomba)
+                Builder.FabricarBombaEn(contenedorBomba);
+            else if (tipo == "tunel" && padre is Contenedor contenedorTunel)
+                Builder.FabricarTunelEn(contenedorTunel);
 
             if (unDic.TryGetValue("hijos", out var hijosObj) && hijosObj is IEnumerable<object> hijos)
             {

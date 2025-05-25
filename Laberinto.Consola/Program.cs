@@ -13,9 +13,9 @@ namespace Laberinto.Consola
             // Crear el builder del laberinto
             var builder = new LaberintoBuilder();
             builder.InicializarLaberinto();
-            builder.ConstruirHabitacion(1);
-            builder.ConstruirHabitacion(2);
-            builder.ConstruirPuerta(1, 2);
+            builder.FabricarHabitacion(1);
+            builder.FabricarHabitacion(2);
+            builder.FabricarPuerta(1, 2);
             var laberinto = builder.ObtenerLaberinto();
 
             // Crear un juego
