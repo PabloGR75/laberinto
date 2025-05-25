@@ -9,6 +9,16 @@ namespace Laberinto.Core.Models
         public ElementoMapa Padre { get; set; }
         protected List<Comando> Comandos { get; } = new List<Comando>();
 
+        public virtual ElementoMapa DeepClone()
+        {
+            var clone = (ElementoMapa)this.MemberwiseClone();
+            // Clona los comandos (si necesitas copia profunda, cambia aquí)
+            clone.Comandos.Clear();
+            clone.Comandos.AddRange(this.Comandos); // Si necesitas copia profunda, clona los comandos individualmente
+            clone.Padre = this.Padre; // O ajusta según lógica de tu modelo
+            return clone;
+        }
+
         public virtual void Initialize()
         {
             Padre = null;
@@ -34,7 +44,7 @@ namespace Laberinto.Core.Models
 
         // Acceso directo a la lista (cuidado con la modificación externa)
         public List<Comando> ComandosLista => Comandos;
-        
+
         public virtual void EliminarPosicionDesde(ElementoMapa posiblePadre)
         {
             if (posiblePadre is Contenedor contenedor)

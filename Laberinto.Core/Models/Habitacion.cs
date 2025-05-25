@@ -21,6 +21,22 @@ namespace Laberinto.Core.Models
         /// Indica que este elemento es una habitación. (Smalltalk esHabitacion) citeturn4file0
         public override bool EsHabitacion => true;
 
+        public override ElementoMapa DeepClone()
+        {
+            var clone = (ElementoMapa)this.MemberwiseClone();
+
+            // Clona la lista de comandos (nueva lista, mismos comandos - cambiar a deep si lo necesitas)
+            clone.ComandosLista.Clear();
+            foreach (var comando in this.ObtenerComandos())
+            {
+                clone.ComandosLista.Add(comando); // Si necesitas deep clone, comando.DeepClone()
+            }
+
+            // Clona otras propiedades si tenemos (como padre, etc.)
+            // clone.Padre = ...;
+
+            return clone;
+        }
 
         public override void VisitarContenedor(IVisitor visitor)
         {

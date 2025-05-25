@@ -18,6 +18,13 @@ namespace Laberinto.Core.Models
 
         public override bool EsArmario => true;
 
+        public override ElementoMapa DeepClone()
+        {
+            var clone = (Armario)base.DeepClone();
+            // Propiedades extra si hay
+            return clone;
+        }
+
         public override void VisitarContenedor(IVisitor visitor)
         {
             visitor.VisitArmario(this);

@@ -22,5 +22,7 @@ namespace Laberinto.Core.Models
         }
 
         public override bool EstaAbierta() => false;
+
+        public override EstadoPuerta DeepClone() => new Cerrada();
     }
 }

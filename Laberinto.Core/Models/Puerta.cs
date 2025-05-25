@@ -22,6 +22,15 @@ namespace Laberinto.Core.Models
             Lado1 = lado1;
             Lado2 = lado2;
         }
+
+        public override ElementoMapa DeepClone()
+        {
+            var clone = (Puerta)base.DeepClone();
+            clone.Lado1 = this.Lado1; // Ojo: solo referencias, no clonadas (o ajusta si quieres clones)
+            clone.Lado2 = this.Lado2;
+            clone.Estado = this.Estado?.DeepClone();
+            return clone;
+        }
         
         public override void Entrar(Ente alguien)
         {
@@ -31,6 +40,7 @@ namespace Laberinto.Core.Models
         public void Abrir()
         {
             Estado.Abrir(this);
+            Console.WriteLine($"La puerta entre {Lado1?.Num} y {Lado2?.Num} ha sido abierta.");
         }
 
         public void Cerrar()

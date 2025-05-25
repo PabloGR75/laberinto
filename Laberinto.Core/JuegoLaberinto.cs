@@ -120,13 +120,15 @@ namespace Laberinto.Core
         {
             // ¡ATENCIÓN! Esto es un placeholder: implementar deep copy real
             // return Prototipo?.VeryDeepCopy();
-            throw new NotImplementedException("ClonarLaberinto: implementar deep copy");
+            //throw new NotImplementedException("ClonarLaberinto: implementar deep copy");
+            return Prototipo.DeepClone() as LaberintoObj;
         }
 
         public LaberintoObj CrearNuevoLaberinto()
         {
             // Aquí deberías crear un laberinto nuevo a partir del prototipo
-            throw new NotImplementedException("CrearNuevoLaberinto: implementar según tu lógica");
+            // throw new NotImplementedException("CrearNuevoLaberinto: implementar según tu lógica");
+            return Prototipo.DeepClone() as LaberintoObj;
         }
 
         // public LaberintoObj CrearLaberinto2Habitaciones()

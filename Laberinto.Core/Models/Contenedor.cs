@@ -14,6 +14,18 @@ namespace Laberinto.Core.Models
 
         public List<ElementoMapa> Hijos => hijos;
 
+        public override ElementoMapa DeepClone()
+        {
+            var clone = (Contenedor)this.MemberwiseClone();
+            clone.Comandos.Clear();
+            foreach (var comando in this.Comandos)
+            {
+                clone.Comandos.Add(comando); // O comando.DeepClone()
+            }
+            // Resto del clonado...
+            return clone;
+        }
+
         public virtual void AgregarHijo(ElementoMapa unEM)
         {
             unEM.Padre = this;

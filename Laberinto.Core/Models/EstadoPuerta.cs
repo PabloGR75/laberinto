@@ -7,6 +7,7 @@ namespace Laberinto.Core.Models
         public abstract void Cerrar(Puerta unaPuerta);
         public abstract void Entrar(Entidades.Ente alguien, Puerta unaPuerta);
         public virtual bool EstaAbierta() => false;
+        public abstract EstadoPuerta DeepClone();
     }
 }
 

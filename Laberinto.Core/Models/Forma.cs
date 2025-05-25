@@ -6,7 +6,15 @@ namespace Laberinto.Core.Models
 {
     public abstract class Forma
     {
-        protected List<Orientacion> orientaciones;
+        protected List<Orientacion> orientaciones = new List<Orientacion>();
+
+        // Propiedad pública para Orientaciones
+        public List<Orientacion> Orientaciones
+        {
+            get => orientaciones;
+            set => orientaciones = value;
+        }
+
         public Punto Punto { get; set; }
         public object Extent { get; set; }
         public int Num { get; set; }
@@ -15,6 +23,14 @@ namespace Laberinto.Core.Models
         protected Forma()
         {
             orientaciones = new List<Orientacion>();
+        }
+
+        public virtual Forma DeepClone()
+        {
+            var clone = (Forma)this.MemberwiseClone();
+            clone.Orientaciones = new List<Orientacion>(this.Orientaciones);
+            // Copia o clona otras propiedades necesarias...
+            return clone;
         }
 
         public virtual void AgregarOrientacion(Orientacion unaOr)

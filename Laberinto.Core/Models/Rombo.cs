@@ -10,6 +10,16 @@ namespace Laberinto.Core.Models
         public ElementoMapa Sureste { get; set; }
         public ElementoMapa Suroeste { get; set; }
 
+        public override Forma DeepClone()
+        {
+            var clone = (Rombo)base.DeepClone();
+            clone.Noreste = this.Noreste;
+            clone.Noroeste = this.Noroeste;
+            clone.Sureste = this.Sureste;
+            clone.Suroeste = this.Suroeste;
+            return clone;
+        }
+
         public void IrAlNoreste(Ente alguien)
         {
             Noreste?.Entrar(alguien);

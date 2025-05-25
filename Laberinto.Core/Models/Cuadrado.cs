@@ -10,6 +10,18 @@ namespace Laberinto.Core.Models
         public ElementoMapa Este { get; set; }
         public ElementoMapa Oeste { get; set; }
 
+        public override Forma DeepClone()
+        {
+            var clone = (Cuadrado)base.DeepClone();
+            // No clonas los ElementoMapa aquí, porque las habitaciones y demás se clonan por otro lado
+            // y luego hay que reconectar las referencias a los clones
+            clone.Norte = this.Norte; // Ojo: referencia directa, solo si quieres
+            clone.Sur = this.Sur;
+            clone.Este = this.Este;
+            clone.Oeste = this.Oeste;
+            return clone;
+        }
+
         public override void IrAlNorte(Ente alguien)
         {
             Norte?.Entrar(alguien);
