@@ -3,7 +3,7 @@ using Laberinto.Core.Entidades;
 
 namespace Laberinto.Core.Models
 {
-    public class Norte : Orientacion
+    public sealed class Norte : Orientacion
     {
         // --- Singleton (equivalente a "default" en Smalltalk) ---
         private static readonly Norte _instancia = new Norte();
@@ -12,6 +12,8 @@ namespace Laberinto.Core.Models
         // Privado para prohibir la creación con new
         private Norte() { }
 
+        public override string Nombre => "Norte";
+        
         // --- Calcular la nueva posición ---
         public override Punto CalcularPosicionDesde(Forma forma)
         {

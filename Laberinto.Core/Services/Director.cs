@@ -1,4 +1,6 @@
 
+using System.Text.Json;
+
 using Laberinto.Core.Entidades;
 using Laberinto.Core.Models;
 
@@ -27,6 +29,8 @@ namespace Laberinto.Core.Services
         {
             // El parámetro sería el resultado de un JSON parseado (ya como Dictionary)
             Dict = new Dictionary<string, object>(archivoJson);
+            Console.WriteLine($"[Director] JSON leído, claves: {string.Join(", ", Dict.Keys)}");
+
         }
 
         public void Procesar(IDictionary<string, object> archivoJson)
@@ -45,28 +49,49 @@ namespace Laberinto.Core.Services
 
         public void FabricarLaberinto()
         {
+            Console.WriteLine("[Director] Fabricando laberinto...");
             Builder.FabricarLaberinto();
 
-            if (Dict.TryGetValue("laberinto", out var labListObj) && labListObj is IEnumerable<object> labList)
+            if (Dict.TryGetValue("laberinto", out var labListObj))
             {
-                foreach (var each in labList)
+                if (labListObj is JsonElement labElem && labElem.ValueKind == JsonValueKind.Array)
                 {
-                    if (each is Dictionary<string, object> subDict)
-                        FabricarLaberintoRecursivo(subDict, "root");
+                    var habitaciones = labElem.EnumerateArray()
+                        .Select(elem => JsonSerializer.Deserialize<Dictionary<string, object>>(elem.GetRawText()))
+                        .ToList();
+                    //Console.WriteLine($"[Director] Habitaciones encontradas: {habitaciones.Count}");
+                    foreach (var each in habitaciones)
+                    {
+                        FabricarLaberintoRecursivo(each, "root");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("[Director] 'laberinto' no es un array JsonElement.");
                 }
             }
-
-            if (Dict.TryGetValue("puertas", out var puertasListObj) && puertasListObj is IEnumerable<object> puertasList)
+            else
             {
-                foreach (var each in puertasList)
+                Console.WriteLine("[Director] No se encontró la clave 'laberinto' en el JSON.");
+            }
+
+            if (Dict.TryGetValue("puertas", out var puertasListObj))
+            {
+                if (puertasListObj is JsonElement puertasElem && puertasElem.ValueKind == JsonValueKind.Array)
                 {
-                    if (each is List<object> puertaParams && puertaParams.Count == 4)
+                    foreach (var puertaArrElem in puertasElem.EnumerateArray())
                     {
-                        Builder.FabricarPuertaL1(
-                            Convert.ToInt32(puertaParams[0]),
-                            puertaParams[1].ToString(),
-                            Convert.ToInt32(puertaParams[2]),
-                            puertaParams[3].ToString());
+                        if (puertaArrElem.ValueKind == JsonValueKind.Array)
+                        {
+                            var puertaItems = puertaArrElem.EnumerateArray().ToArray();
+                            int numHabA = puertaItems[0].GetInt32();
+                            string orA = puertaItems[1].GetString();
+                            int numHabB = puertaItems[2].GetInt32();
+                            string orB = puertaItems[3].GetString();
+
+                            Builder.FabricarPuertaL1(numHabA, orA, numHabB, orB);
+                            //Console.WriteLine($"[DEBUG] Puerta: {numHabA} ({orA}) <-> {numHabB} ({orB})");
+                        }
                     }
                 }
             }
@@ -74,39 +99,94 @@ namespace Laberinto.Core.Services
 
         public void FabricarLaberintoRecursivo(Dictionary<string, object> unDic, object padre)
         {
+            if (!unDic.ContainsKey("tipo")) return;
+
+            string tipo = unDic["tipo"].ToString().ToLower();
             object con = null;
-            var tipo = unDic["tipo"].ToString();
+
+            // Extracción segura del número
+            int num = 0;
+            if (unDic.ContainsKey("num"))
+            {
+                var numElement = unDic["num"];
+                if (numElement is JsonElement je)
+                {
+                    if (je.ValueKind == JsonValueKind.Number)
+                        num = je.GetInt32();
+                    else if (je.ValueKind == JsonValueKind.String)
+                        num = int.Parse(je.GetString());
+                    else
+                        throw new InvalidOperationException("El campo 'num' no es ni número ni string.");
+                }
+                else if (numElement is int n)
+                {
+                    num = n;
+                }
+                else if (numElement is string s)
+                {
+                    num = int.Parse(s);
+                }
+            }
 
             if (tipo == "habitacion")
-                con = Builder.FabricarHabitacion(Convert.ToInt32(unDic["num"]));
+                con = Builder.FabricarHabitacion(num);
             else if (tipo == "armario")
-                con = Builder.FabricarArmario(Convert.ToInt32(unDic["num"]), padre);
-            else if (tipo == "bomba" && padre is Contenedor contenedorBomba)
-                Builder.FabricarBombaEn(contenedorBomba);
-            else if (tipo == "tunel" && padre is Contenedor contenedorTunel)
-                Builder.FabricarTunelEn(contenedorTunel);
+                con = Builder.FabricarArmario(num, padre);
+            else if (tipo == "bomba")
+                Builder.FabricarBombaEn(padre as Contenedor);
+            else if (tipo == "tunel")
+                Builder.FabricarTunelEn(padre as Contenedor);
 
-            if (unDic.TryGetValue("hijos", out var hijosObj) && hijosObj is IEnumerable<object> hijos)
+            // Procesar hijos recursivamente (si existen)
+            if (unDic.ContainsKey("hijos"))
             {
-                foreach (var each in hijos)
+                var hijosElement = unDic["hijos"];
+                if (hijosElement is JsonElement hijosJe && hijosJe.ValueKind == JsonValueKind.Array)
                 {
-                    if (each is Dictionary<string, object> subHijo)
-                        FabricarLaberintoRecursivo(subHijo, con);
+                    foreach (var hijo in hijosJe.EnumerateArray())
+                    {
+                        // Cada hijo es un objeto tipo Dictionary<string, object>
+                        var hijoDic = new Dictionary<string, object>();
+                        foreach (var prop in hijo.EnumerateObject())
+                            hijoDic[prop.Name] = prop.Value;
+
+                        FabricarLaberintoRecursivo(hijoDic, con ?? padre);
+                    }
+                }
+                // Si ya tienes una lista de diccionarios en vez de un JsonElement, recórrela igual
+                else if (hijosElement is List<Dictionary<string, object>> hijosList)
+                {
+                    foreach (var hijoDic in hijosList)
+                    {
+                        FabricarLaberintoRecursivo(hijoDic, con ?? padre);
+                    }
                 }
             }
         }
 
         public void FabricarBichos()
         {
-            if (Dict.TryGetValue("bichos", out var bichosListObj) && bichosListObj is IEnumerable<object> bichosList)
+            if (Dict.TryGetValue("bichos", out var bichosListObj))
             {
-                foreach (var each in bichosList)
+                if (bichosListObj is JsonElement bichosElem && bichosElem.ValueKind == JsonValueKind.Array)
                 {
-                    if (each is Dictionary<string, object> bichoDict)
+                    foreach (var elem in bichosElem.EnumerateArray())
                     {
-                        var modo = bichoDict["modo"].ToString();
-                        var posicion = Convert.ToInt32(bichoDict["posicion"]);
+                        var modo = elem.GetProperty("modo").GetString();
+                        var posicion = elem.GetProperty("posicion").GetInt32();
                         Builder.FabricarBichoModo(modo, posicion);
+                    }
+                }
+                else if (bichosListObj is IEnumerable<object> bichosList)
+                {
+                    foreach (var each in bichosList)
+                    {
+                        if (each is Dictionary<string, object> bichoDict)
+                        {
+                            var modo = bichoDict["modo"].ToString();
+                            var posicion = Convert.ToInt32(bichoDict["posicion"]);
+                            Builder.FabricarBichoModo(modo, posicion);
+                        }
                     }
                 }
             }

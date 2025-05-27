@@ -7,6 +7,8 @@ namespace Laberinto.Core.Models
     // El laberinto, contenedor de habitaciones y demás elementos.
     public class LaberintoObj : Contenedor
     {
+        public List<Habitacion> Habitaciones { get; set; } = new List<Habitacion>();
+
         public override bool EsLaberinto => true;
 
         public override void VisitarContenedor(IVisitor visitor)
@@ -23,6 +25,7 @@ namespace Laberinto.Core.Models
         public void AgregarHabitacion(Habitacion unaHabitacion)
         {
             Hijos.Add(unaHabitacion);
+            Habitaciones.Add(unaHabitacion);
             unaHabitacion.Padre = this;
         }
 
@@ -30,9 +33,40 @@ namespace Laberinto.Core.Models
         public void EliminarHabitacion(Habitacion unaHabitacion)
         {
             Hijos.Remove(unaHabitacion);
+            Habitaciones.Remove(unaHabitacion);
             if (unaHabitacion.Padre == this)
                 unaHabitacion.Padre = null;
         }
+
+        public IEnumerable<Puerta> ObtenerTodasLasPuertas()
+        {
+            var set = new HashSet<Puerta>();
+            if (Habitaciones == null)
+            {
+                Console.WriteLine("[DEBUG] Habitaciones es null en LaberintoObj.");
+                yield break;
+            }
+            foreach (var hijo in Hijos)
+            {
+                if (hijo is Habitacion hab)
+                {
+                    if (hab.Puertas == null)
+                    {
+                        Console.WriteLine($"[DEBUG] Puertas es null en Habitación {hab.Num}.");
+                        continue;
+                    }
+
+                    foreach (var puerta in hab.Puertas.Values)
+                    {
+                        if (puerta != null)
+                            set.Add(puerta);
+                    }
+                }
+            }
+            foreach (var p in set)
+                yield return p;
+        }
+
 
         // Devuelve la habitación número 'num' (por número de habitación).
         public Habitacion ObtenerHabitacion(int num)

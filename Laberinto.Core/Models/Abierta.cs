@@ -19,6 +19,7 @@ namespace Laberinto.Core.Models
 
         public override void Entrar(Entidades.Ente alguien, Puerta unaPuerta)
         {
+            Console.WriteLine($"{alguien} pasa por {unaPuerta}");
             unaPuerta.PuedeEntrar(alguien);
         }
 

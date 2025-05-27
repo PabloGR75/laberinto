@@ -11,7 +11,7 @@ namespace Laberinto.Core.Models
         /// Identificador numérico de la habitación.
         public int Num { get; private set; }
 
-        /// Crea una nueva habitación con el número dado. (Smalltalk initialize y num:) citeturn4file0turn4file3
+        /// Crea una nueva habitación con el número dado. (Smalltalk initialize y num:)
         /// <param name="num">Número de la habitación.</param>
         public Habitacion(int num)
         {
@@ -67,10 +67,15 @@ namespace Laberinto.Core.Models
         // Diccionario de puertas por orientación
         private readonly Dictionary<Orientacion, Puerta> puertas = new();
 
+        public IReadOnlyDictionary<Orientacion, Puerta> Puertas => puertas;
+
         /// Asocia una puerta a una orientación de la habitación.
         public void AgregarPuerta(Orientacion orientacion, Puerta puerta)
         {
-            puertas[orientacion] = puerta;
+            if (!puertas.ContainsKey(orientacion))
+                puertas.Add(orientacion, puerta);
+            else
+                puertas[orientacion] = puerta;
         }
 
         /// Devuelve la habitación vecina en una orientación dada, si hay puerta y está abierta.
@@ -100,6 +105,116 @@ namespace Laberinto.Core.Models
             // Lógica para devolver la orientación relevante.
             // Ejemplo simple: devuelve una por defecto, o según contexto/juego.
             return null;
+        }
+
+
+        public override string Describir(JuegoLaberinto juego)
+        {
+            var sb = new System.Text.StringBuilder();
+
+            sb.AppendLine($"\n=== Estás en la Habitación {this.Num} ===");
+
+            // PUERTAS
+            sb.AppendLine("\nPuertas:");
+            if (this.Puertas.Count > 0)
+            {
+                foreach (var kvp in this.Puertas)
+                {
+                    var puerta = kvp.Value;
+                    var l1 = puerta.Lado1 as Habitacion;
+                    var l2 = puerta.Lado2 as Habitacion;
+                    string estado = puerta.EstaAbierta() ? "Abierta" : "Cerrada";
+                    sb.AppendLine($"- Dirección {kvp.Key}: Conecta con Hab. {(l2?.Num == this.Num ? l1?.Num : l2?.Num)} - {estado}");
+                }
+            }
+            else
+            {
+                sb.AppendLine("No hay puertas visibles.");
+            }
+
+            // ELEMENTOS
+            sb.AppendLine("\nElementos:");
+
+            // - Bombas
+            var bombas = this.Hijos.OfType<Bomba>().Count();
+            if (bombas > 0)
+            {
+                sb.AppendLine($"- ¡Hay {bombas} Bomba(s)! Ten cuidado");
+            }
+            else
+            {
+                sb.AppendLine("- No hay elementos especiales");
+            }
+
+            // BICHOS
+            var bichos = this.ObtenerBichos(juego).ToList();
+            if (bichos.Any())
+            {
+                sb.AppendLine("\nBichos:");
+                foreach (var bicho in bichos)
+                {
+                    sb.AppendLine($"- {bicho.Modo?.GetType().Name} (Vidas: {bicho.Vidas}, Estado: {(bicho.EstaVivo() ? "Vivo" : "Muerto")})");
+                }
+            }
+
+            // // Mostrar puertas (y si están abiertas/cerradas)
+            // if (this.Puertas != null && this.Puertas.Count > 0)
+            // {
+            //     sb.AppendLine("Salidas:");
+            //     foreach (var kvp in this.Puertas)
+            //     {
+            //         var orientacion = kvp.Key.ToString();
+            //         var puerta = kvp.Value;
+            //         string estado = puerta.EstaAbierta() ? "abierta" : "cerrada";
+            //         sb.AppendLine($" - {orientacion}: Puerta {estado}");
+            //     }
+            // }
+
+            // ----------------------------------------------------------------------------------------------------
+
+            // // Mostrar hijos (armarios, túneles, bombas, etc.)
+            // if (this.Hijos != null && this.Hijos.Count > 0)
+            // {
+            //     sb.AppendLine("En la habitación ves:");
+            //     foreach (var hijo in this.Hijos)
+            //     {
+            //         switch (hijo)
+            //         {
+            //             case Armario arm:
+            //                 sb.AppendLine(" - Un armario");
+            //                 break;
+            //             case Tunel tunel:
+            //                 sb.AppendLine(" - Un túnel misterioso");
+            //                 break;
+            //             case Bomba bomba:
+            //                 sb.AppendLine(" - ¡Cuidado! Hay una bomba");
+            //                 break;
+            //             // Añade otros elementos según los que tengas implementados
+            //             default:
+            //                 sb.AppendLine($" - {hijo.GetType().Name}");
+            //                 break;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     sb.AppendLine("No ves nada especial aquí.");
+            // }
+
+            // ----------------------------------------------------------------------------------------------------
+
+            // // Mostrar bichos en la habitación
+            // var bichos = this.Hijos?.OfType<Bicho>().Where(b => b.EstaVivo()).ToList();
+            // if (bichos != null && bichos.Count > 0)
+            // {
+            //     sb.AppendLine($"- ¡Cuidado! Hay {bichos.Count} bicho(s) aquí.");
+            // }
+
+            return sb.ToString();
+        }
+        public IEnumerable<Bicho> ObtenerBichos(JuegoLaberinto juego)
+        {
+            return juego?.Bichos?.Where(b => b.Posicion == this) ?? Enumerable.Empty<Bicho>();
         }
 
         public virtual void IrAlNorte(Ente ente)

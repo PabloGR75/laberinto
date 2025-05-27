@@ -82,5 +82,38 @@ namespace Laberinto.Core.Entidades
             Juego?.BuscarBicho();
             return true; // Devuelve true para mantener compatibilidad, ajusta según lógica real
         }
+
+        public override bool EstaVivo()
+        {
+            return Vidas > 0;
+        }
+
+        public string MoverA(Orientacion orientacion)
+        {
+            // Suponiendo que Posicion es la habitación actual (Habitacion)
+            var habitacionActual = this.Posicion as Habitacion;
+            if (habitacionActual == null)
+                return "Error: No estás en una habitación válida.";
+
+            // Busca la puerta en esa orientación
+            if (!habitacionActual.Puertas.TryGetValue(orientacion, out var puerta))
+                return $"Hay una pared en dirección {orientacion}. Te quedas en Habitación {habitacionActual.Num}.";
+
+            // Hay puerta
+            if (!puerta.EstaAbierta())
+                return $"Chocas con una puerta cerrada dirección {orientacion}. Te quedas en Habitación {habitacionActual.Num}.";
+
+            // La puerta está abierta, puedes cruzar
+            // Averigua a qué habitación te mueves (suponiendo método OtroLado)
+            var otra = puerta.OtroLado(habitacionActual) as Habitacion;
+            if (otra != null)
+            {
+                this.Posicion = otra;
+                return $"Cruzas la puerta {orientacion} y entras en Habitación {otra.Num}.";
+            }
+
+            return "Error: No se pudo mover a la otra habitación.";
+        }
+
     }
 }

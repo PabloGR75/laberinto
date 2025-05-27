@@ -9,7 +9,7 @@ namespace Laberinto.Core
     public class JuegoLaberinto
     {
         public LaberintoObj Laberinto { get; set; }
-        public List<Bicho> Bichos { get; set; }
+        public List<Bicho> Bichos { get; set; } = new List<Bicho>();
         public Dictionary<Bicho, object> Hilos { get; set; } // Los hilos pueden ser Tasks si los necesitas
         public Personaje Person { get; set; }
         public LaberintoObj Prototipo { get; set; }
@@ -26,8 +26,37 @@ namespace Laberinto.Core
         }
 
         // ---- Puertas ----
-        public void AbrirPuertas() => Laberinto?.AbrirPuertas();
-        public void CerrarPuertas() => Laberinto?.CerrarPuertas();
+        public void AbrirPuertas()
+        {
+            foreach (var puerta in Laberinto.ObtenerTodasLasPuertas())
+            {
+                puerta.Abrir();
+                Console.WriteLine($"Puerta {puerta} ahora está {puerta.Estado.GetType().Name}");
+            }
+        }
+
+        public void CerrarPuertas()
+        {
+            foreach (var puerta in Laberinto.ObtenerTodasLasPuertas())
+                puerta.Cerrar();
+        }
+        public void AbrirTodasLasPuertas()
+        {
+            foreach (var puerta in Laberinto.ObtenerTodasLasPuertas())
+            {
+                puerta.Abrir();
+            }
+            Console.WriteLine("¡Todas las puertas han sido abiertas!");
+        }
+
+        public void CerrarTodasLasPuertas()
+        {
+            foreach (var puerta in Laberinto.ObtenerTodasLasPuertas())
+            {
+                puerta.Cerrar();
+            }
+            Console.WriteLine("¡Todas las puertas han sido cerradas!");
+        }
 
         // ---- Bichos ----
         public void AgregarBicho(Bicho bicho)
@@ -53,6 +82,11 @@ namespace Laberinto.Core
             Hilos[bicho] = null; // placeholder, usar Task si lo necesitas
         }
 
+        public bool TodosLosBichosMuertos()
+        {
+            return Bichos != null && Bichos.All(b => !b.EstaVivo());
+        }
+
         public void LanzarBichos()
         {
             foreach (var bicho in Bichos)
@@ -63,6 +97,16 @@ namespace Laberinto.Core
         public void AgregarPersonaje(string nombre)
         {
             Person = new Personaje(nombre);
+
+            var habInicial = Laberinto.ObtenerHabitacion(1); // O usa la lógica que prefieras
+
+            if (habInicial == null)
+                throw new InvalidOperationException("No se encontró la habitación inicial (1) en el laberinto.");
+
+            Person.Posicion = habInicial;
+            // Realmente "entra" en la habitación (y ejecute lógica de entrar):
+            habInicial?.Entrar(Person);
+
             Person.Juego = this;
             Laberinto?.Entrar(Person);
         }

@@ -7,7 +7,7 @@ namespace Laberinto.Core.Models
     {
         public override void Abrir(Puerta unaPuerta)
         {
-            Console.WriteLine($"{unaPuerta} abierta");
+            //Console.WriteLine($"{unaPuerta} abierta");
             unaPuerta.Estado = new Abierta();
         }
 

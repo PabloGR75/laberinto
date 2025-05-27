@@ -80,6 +80,11 @@ namespace Laberinto.Core.Models
             }
         }
 
+        public virtual string Describir(JuegoLaberinto juego)
+        {
+            return "No hay nada que destacar aquí.";
+        }
+
         public virtual object GetExtent() => Forma?.Extent;
         public virtual void SetExtent(object valor) => Forma.Extent = valor;
 

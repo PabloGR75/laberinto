@@ -11,132 +11,195 @@ namespace Laberinto.Consola
     {
         static void Main(string[] args)
         {
-            // Ruta al archivo JSON (ajusta la ruta si necesario)
-            var rutaJson = Path.Combine("Laberintos", "lab4Hab.json");
-            string json = File.ReadAllText(rutaJson);
-
-            // Deserializar a Dictionary<string, object>
-            var options = new JsonSerializerOptions
+            Console.Clear();
+            string rutaJson = "Laberintos/lab4Hab4Bichos.json"; // Pon la ruta relativa correcta
+            if (!File.Exists(rutaJson))
             {
-                PropertyNameCaseInsensitive = true
-            };
-
-            var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(json, options);
-            var dictObj = JsonHelper.ToObjectDictionary(dict);
-
-            // Crear el Director (el orquestador que lee el JSON y construye el juego)
-            var director = new Director();
-
-            // Procesar el archivo JSON para construir el juego
-            director.Procesar(dictObj);
-
-            // Obtener el juego creado
-            var juego = director.ObtenerJuego() as JuegoLaberinto;
-            if (juego == null)
-            {
-                Console.WriteLine("Error: el objeto no es un JuegoLaberinto.");
+                Console.WriteLine("No se encuentra el archivo del laberinto.");
                 return;
             }
 
-            // Agregar un personaje al juego (por ejemplo, "Pepe")
-            juego.AgregarPersonaje("Pepe");
+            // Cargar JSON
+            var json = File.ReadAllText(rutaJson);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json, options);
+            var director = new Director();
 
-            // Puedes obtener el personaje para realizar acciones
-            var person = juego.Person;
+            // Procesar y obtener el juego
+            director.Procesar(dict);
+            var juego = director.ObtenerJuego() as JuegoLaberinto;
 
-            // Opcional: Mostrar estado inicial por consola
-            Console.WriteLine("¡Laberinto cargado y personaje creado!");
-            Console.WriteLine($"Posición inicial del personaje: Habitación {person.Posicion?.Num}");
-
-            Console.WriteLine("----- Recorrido del laberinto -----");
-
-            // Recorre el laberinto y muestra información de cada elemento
-            juego.Laberinto.Recorrer(em =>
+            var habitaciones = juego.Laberinto.Hijos.OfType<Habitacion>().ToList();
+            //Console.WriteLine("Habitaciones en el laberinto:");
+            foreach (var hab in habitaciones)
             {
-                switch (em)
+                //Console.WriteLine($"- Habitación {hab.Num}");
+            }
+
+            // Crear personaje
+            Console.WriteLine("----------------------------------------------------------");
+            Console.Write("Introduce el nombre del personaje: ");
+            var nombre = Console.ReadLine();
+            Console.Clear();
+            juego.AgregarPersonaje(nombre);
+
+            if (juego.Person == null)
+            {
+                Console.WriteLine("Error: No se ha creado el personaje.");
+                return;
+            }
+            if (juego.Person.Posicion == null)
+            {
+                Console.WriteLine("Error: El personaje no tiene posición inicial.");
+                return;
+            }
+            else
+            {
+                //Console.WriteLine($"El personaje {juego.Person.Nombre} está en Habitación {juego.Person.Posicion.Num}.");
+            }
+
+            bool juegoActivo = true;
+
+            while (juegoActivo)
+            {
+                //Console.Clear();
+                // Mostrar estado actual del personaje y bichos
+                Console.WriteLine("----------------------------------------------------------");
+                Console.WriteLine($"Personaje: {juego.Person.Nombre} - Vidas: {juego.Person.Vidas} - Posición: Habitación {juego.Person.Posicion.Num}");
+                Console.WriteLine("Bichos vivos: " + juego.Bichos.Count(b => b.EstaVivo()));
+                Console.WriteLine("----------------------------------------------------------");
+                //Console.WriteLine($"[DEBUG] Habitación actual tiene {juego.Person.Posicion.Puertas.Count} puertas.");
+
+                // Mostrar acciones disponibles
+                Console.WriteLine("Acciones disponibles:");
+                Console.WriteLine("1. Ir al Norte");
+                Console.WriteLine("2. Ir al Sur");
+                Console.WriteLine("3. Ir al Este");
+                Console.WriteLine("4. Ir al Oeste");
+                Console.WriteLine("5. Atacar");
+                Console.WriteLine("6. Inspeccionar habitación");
+                Console.WriteLine("7. Abrir todas las puertas");
+                Console.WriteLine("8. Cerrar todas las puertas");
+                Console.WriteLine("9. Ver puertas de la habitación actual");
+                Console.WriteLine("0. Salir");
+
+                Console.Write("Elige acción: ");
+                var opcion = Console.ReadLine();
+                Console.Clear();
+
+                Console.WriteLine("----------------------------------------------------------");
+
+                switch (opcion)
                 {
-                    case Habitacion hab:
-                        Console.WriteLine($"Habitación {hab.Num}");
-                        // Si quieres, también puedes mostrar sus hijos:
-                        foreach (var hijo in hab.Hijos)
+                    case "1":
+                        Console.WriteLine(juego.Person.MoverA(Norte.Instancia));
+                        break;
+                    case "2":
+                        Console.WriteLine(juego.Person.MoverA(Sur.Instancia));
+                        break;
+                    case "3":
+                        Console.WriteLine(juego.Person.MoverA(Este.Instancia));
+                        break;
+                    case "4":
+                        Console.WriteLine(juego.Person.MoverA(Oeste.Instancia));
+                        break;
+                    case "5":
+                        juego.Person.Atacar();
+                        break;
+                    case "6": // Inspeccionar habitación
+                        var habitacionActual = juego.Person.Posicion as Habitacion;
+                        if (habitacionActual != null)
                         {
-                            Console.WriteLine($"  - Hijo: {hijo.GetType().Name}");
+                            Console.WriteLine(habitacionActual.Describir(juego));
+                            // foreach (var kvp in habitacionActual.Puertas)
+                            // {
+                            //     var orientacion = kvp.Key; // Esto es una instancia de Orientacion
+                            //     var puerta = kvp.Value;
+
+                            //     var l1 = puerta.Lado1 as Habitacion;
+                            //     var l2 = puerta.Lado2 as Habitacion;
+                            //     if (l1 == null || l2 == null || l1.Num == 0 || l2.Num == 0)
+                            //     {
+                            //         Console.WriteLine("[DEBUG] Puerta con referencia nula o habitación sin número. Se omite.");
+                            //         continue;
+                            //     }
+                            //     Console.WriteLine($"Puerta en dirección {orientacion}: conecta habitación {(l1?.Num ?? -1)} y {(l2?.Num ?? -1)} - Estado: {(puerta.EstaAbierta() ? "Abierta" : "Cerrada")}");
+                            // }
+                        }
+                        break;
+                    case "7":
+                        juego.AbrirTodasLasPuertas();
+                        //Console.WriteLine("Estado de las puertas tras abrirlas:");
+                        foreach (var puerta in juego.Laberinto.ObtenerTodasLasPuertas())
+                        {
+                            var l1 = puerta.Lado1 as Habitacion;
+                            var l2 = puerta.Lado2 as Habitacion;
+                            //Console.WriteLine($"Puerta conecta {l1?.Num} y {l2?.Num}: {(puerta.EstaAbierta() ? "Abierta" : "Cerrada")}");
+                        }
+                        break;
+                    case "8":
+                        juego.CerrarTodasLasPuertas();
+                        //Console.WriteLine("Estado de las puertas tras cerrarlas:");
+                        foreach (var puerta in juego.Laberinto.ObtenerTodasLasPuertas())
+                        {
+                            var l1 = puerta.Lado1 as Habitacion;
+                            var l2 = puerta.Lado2 as Habitacion;
+                            //Console.WriteLine($"Puerta conecta {l1?.Num} y {l2?.Num}: {(puerta.EstaAbierta() ? "Abierta" : "Cerrada")}");
+                        }
+                        break;
+                    case "9":
+                        var habActual = juego.Person.Posicion as Habitacion;
+                        if (habActual != null)
+                        {
+                            // Mostrar Puertas
+                            foreach (var kvp in habActual.Puertas)
+                            {
+                                var orientacion = kvp.Key; // Esto es una instancia de Orientacion
+                                var puerta = kvp.Value;
+                                var l1 = puerta.Lado1 as Habitacion;
+                                var l2 = puerta.Lado2 as Habitacion;
+                                if (l1 == null || l2 == null || l1.Num == 0 || l2.Num == 0)
+                                {
+                                    Console.WriteLine("[DEBUG] Puerta con referencia nula o habitación sin número. Se omite.");
+                                    continue;
+                                }
+                                Console.WriteLine($"- Puerta dirección {orientacion}: Conecta habitación {(l1?.Num ?? -1)} y {(l2?.Num ?? -1)} - {(puerta.EstaAbierta() ? "Abierta" : "Cerrada")}");
+                            }
                         }
                         break;
 
-                    case Armario arm:
-                        if (arm.Padre is Habitacion habPadre)
-                            Console.WriteLine($"  Armario en habitación {habPadre.Num}");
-                        else if (arm.Padre is Contenedor cont)
-                            Console.WriteLine($"  Armario en contenedor número {cont.Num}");
-                        else
-                            Console.WriteLine("  Armario sin habitación padre");
+                    case "0":
+                        juegoActivo = false;
                         break;
-
-                    case Puerta puerta:
-                        Console.WriteLine($"Puerta entre {puerta.Lado1?.Num} y {puerta.Lado2?.Num} (Abierta: {puerta.EstaAbierta()})");
+                    default:
+                        Console.WriteLine("Opción no válida.");
                         break;
                 }
-                
-                foreach (var bicho in juego.Bichos)
+
+                // Mensaje de pausa tras la acción
+                // Console.WriteLine();
+                // Console.WriteLine("Pulsa una tecla para continuar...");
+                // Console.ReadKey();
+
+                // Comprobar condiciones de fin de partida
+                if (!juego.Person.EstaVivo())
                 {
-                    Console.WriteLine($"Bicho en habitación {bicho.Posicion?.Num} (Modo: {bicho.Modo?.GetType().Name})");
+                    Console.WriteLine("¡Has perdido! El personaje ha muerto.");
+                    juegoActivo = false;
                 }
-            });
+                else if (juego.TodosLosBichosMuertos())
+                {
+                    Console.WriteLine("¡Enhorabuena! Has eliminado a todos los bichos.");
+                    juegoActivo = false;
+                }
 
-            Console.WriteLine("----- Fin del recorrido -----");
-
-            // Ejemplo de mover al personaje
-            person.IrAlNorte();
-            person.IrAlSur();
-            person.IrAlEste();
-            person.IrAlOeste();
-
-            // Puedes atacar, abrir puertas, lanzar bichos, etc.
-            person.Atacar();
-            juego.AbrirPuertas();
-            juego.CerrarPuertas();
-            juego.LanzarBichos();
-            juego.TerminarBichos();
-
-            Console.WriteLine("Fin de la partida de prueba.");
-
-
-            // // Crear el builder del laberinto
-            // var builder = new LaberintoBuilder();
-            // builder.InicializarLaberinto();
-            // builder.FabricarHabitacion(1);
-            // builder.FabricarHabitacion(2);
-            // builder.FabricarPuerta(1, 2);
-            // var laberinto = builder.ObtenerLaberinto();
-
-            // // Crear un juego
-            // var juego = new JuegoLaberinto(laberinto);
-
-            // // Crear un bicho y ubicarlo en la habitación 1
-            // var bicho = new Bicho(new Perezoso());
-            // var hab1 = laberinto.ObtenerHabitacion(1);
-            // bicho.EntrarEn(hab1);
-
-            // Console.WriteLine("Bicho entra en la habitación: " + bicho.Posicion.Num);
-
-            // // Mover el bicho a la habitación vecina (por la puerta)
-            // var habVecina = hab1.ObtenerVecina(Este.Instancia);
-            // if (habVecina != null)
-            // {
-            //     bicho.EntrarEn(habVecina);
-            //     Console.WriteLine("Bicho se mueve a la habitación: " + bicho.Posicion.Num);
-            // }
-            // else
-            // {
-            //     Console.WriteLine("No hay habitación vecina en esa dirección.");
-            // }
-
-            // // Prueba Visitor: recorrer e imprimir tipo de cada elemento
-            // var visitor = new DescripcionVisitor();
-            // laberinto.Recorrer(e => e.Accept(visitor));
+                // if (juegoActivo)
+                //     Console.Clear();
+            }
+            Console.WriteLine("Fin del juego.");
 
         }
     }
 }
+
 

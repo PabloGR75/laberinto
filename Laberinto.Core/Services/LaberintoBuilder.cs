@@ -26,7 +26,8 @@ namespace Laberinto.Core.Services
         public virtual object FabricarHabitacion(int num)
         {
             var habitacion = new Habitacion(num);
-            laberintoActual.AgregarHijo(habitacion);
+            //Console.WriteLine($"[BUILDER] Habitacion creada: {num}");
+            laberintoActual.AgregarHabitacion(habitacion);
             return habitacion;
         }
 
@@ -49,8 +50,11 @@ namespace Laberinto.Core.Services
             var habA = laberintoActual.ObtenerHabitacion(numHabA);
             var habB = laberintoActual.ObtenerHabitacion(numHabB);
 
+            Console.WriteLine($"[DEBUG] Parámetros para fabricar puerta: entre hab {habA?.Num} y hab {habB?.Num}");
+
             if (habA != null && habB != null)
             {
+                //Console.WriteLine($"[DEBUG] Creando puerta entre hab {habA?.Num} y hab {habB?.Num}");
                 var puerta = new Puerta(habA, habB);
                 habA.AgregarPuerta(Este.Instancia, puerta); // Orientación ejemplo
                 habB.AgregarPuerta(Oeste.Instancia, puerta);
@@ -59,19 +63,19 @@ namespace Laberinto.Core.Services
 
         public virtual void FabricarPuertaL1(int numHabA, string orA, int numHabB, string orB)
         {
-            // Asumiendo que orientación son strings tipo "Norte", "Sur", etc.
             var habA = laberintoActual.ObtenerHabitacion(numHabA);
             var habB = laberintoActual.ObtenerHabitacion(numHabB);
+
             if (habA != null && habB != null)
             {
                 var puerta = new Puerta(habA, habB);
+                var oA = Orientacion.FromString(orA);
+                var oB = Orientacion.FromString(orB);
+                habA.AgregarPuerta(oA, puerta);
+                habB.AgregarPuerta(oB, puerta);
 
-                // Obtener la orientación (aquí necesitarías una función auxiliar)
-                var orientA = ObtenerOrientacionDesdeString(orA);
-                var orientB = ObtenerOrientacionDesdeString(orB);
-
-                habA.AgregarPuerta(orientA, puerta);
-                habB.AgregarPuerta(orientB, puerta);
+                //Console.WriteLine($"[BUILDER] habA({habA.Num}) puerta[{oA}] => puerta({(puerta.Lado1 is Habitacion h1 ? h1.Num : -1)}, {(puerta.Lado2 is Habitacion h2 ? h2.Num : -1)})");
+                //Console.WriteLine($"[BUILDER] habB({habB.Num}) puerta[{oB}] => puerta({(puerta.Lado1 is Habitacion hb1 ? hb1.Num : -1)}, {(puerta.Lado2 is Habitacion hb2 ? hb2.Num : -1)})");
             }
         }
 
@@ -79,6 +83,7 @@ namespace Laberinto.Core.Services
         {
             var bomba = new Bomba();
             contenedor.AgregarHijo(bomba);
+            //Console.WriteLine($"[BUILDER] Bomba agregada a habitación {(contenedor as Habitacion)?.Num}");
         }
 
         public virtual void FabricarTunelEn(Contenedor contenedor)
@@ -136,6 +141,7 @@ namespace Laberinto.Core.Services
             bicho.Poder = 5;
             habitacion.Entrar(bicho);
             // Aquí podrías añadirlo a la colección de bichos del juego si hace falta
+            juegoActual.Bichos.Add(bicho);
         }
 
         public void FabricarBichoPerezoso(int numHabitacion)
@@ -149,6 +155,7 @@ namespace Laberinto.Core.Services
             bicho.Poder = 1;
             habitacion.Entrar(bicho);
             // Aquí podrías añadirlo a la colección de bichos del juego si hace falta
+            juegoActual.Bichos.Add(bicho);
         }
 
         public virtual void FabricarBichoModo(string modo, int posicion)

@@ -3,11 +3,13 @@ using Laberinto.Core.Entidades;
 
 namespace Laberinto.Core.Models
 {
-    public class Sureste : Orientacion
+    public sealed class Sureste : Orientacion
     {
         private static readonly Sureste _instancia = new Sureste();
         public static Sureste Instancia => _instancia;
         private Sureste() { }
+
+        public override string Nombre => "Sureste";
 
         public override Punto CalcularPosicionDesde(Forma forma)
         {

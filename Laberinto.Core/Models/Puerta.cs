@@ -10,6 +10,9 @@ namespace Laberinto.Core.Models
         public EstadoPuerta Estado { get; set; }
         public bool Visitada { get; set; }
 
+        private readonly Dictionary<Orientacion, Puerta> puertas = new();
+        public IReadOnlyDictionary<Orientacion, Puerta> Puertas => puertas;
+
         public Puerta()
         {
             Estado = new Cerrada();
@@ -31,7 +34,7 @@ namespace Laberinto.Core.Models
             clone.Estado = this.Estado?.DeepClone();
             return clone;
         }
-        
+
         public override void Entrar(Ente alguien)
         {
             Estado.Entrar(alguien, this);
@@ -40,12 +43,13 @@ namespace Laberinto.Core.Models
         public void Abrir()
         {
             Estado.Abrir(this);
-            Console.WriteLine($"La puerta entre {Lado1?.Num} y {Lado2?.Num} ha sido abierta.");
+            //Console.WriteLine($"La puerta entre {Lado1?.Num} y {Lado2?.Num} ha sido abierta.");
         }
 
         public void Cerrar()
         {
             Estado.Cerrar(this);
+            //Console.WriteLine($"La puerta entre {Lado1?.Num} y {Lado2?.Num} ha sido cerrada.");
         }
 
         public bool EstaAbierta()
@@ -105,7 +109,9 @@ namespace Laberinto.Core.Models
 
         public override string ToString()
         {
-            return $"Puerta-{Lado1?.Num}-{Lado2?.Num}";
+            int num1 = (Lado1 is Habitacion hab1) ? hab1.Num : 0;
+            int num2 = (Lado2 is Habitacion hab2) ? hab2.Num : 0;
+            return $"Puerta-{num1}-{num2}";
         }
     }
 }
