@@ -10,6 +10,7 @@ namespace Laberinto.Core.Entidades
         public Personaje(string nombre, JuegoLaberinto? juego = null) : base(juego)
         {
             Nombre = nombre;
+            Poder = 3;
         }
 
         // Constructor alternativo sin nombre (por si lo necesitas)
@@ -22,6 +23,45 @@ namespace Laberinto.Core.Entidades
         public override void Avisar(string mensaje = "")
         {
             Juego?.MuerePersonaje();
+        }
+
+        public string AtacarEnHabitacionActual(JuegoLaberinto juego)
+        {
+            if (this.Posicion is Habitacion hab)
+            {
+                // Busca bichos en la habitación actual usando el método del juego
+                var bichosEnHabitacion = juego.Bichos
+                    .Where(b => b.Posicion == hab && b.EstaVivo())
+                    .ToList();
+
+                if (!bichosEnHabitacion.Any())
+                    return "No hay ningún bicho vivo en esta habitación para atacar.";
+
+                // Ataca al primer bicho encontrado (o puedes modificar para atacar a todos)
+                var bicho = bichosEnHabitacion.First();
+                int danno = this.Poder;
+                bicho.RecibirDanno(danno);
+
+                string resultado = $"¡Atacas al bicho {bicho.Modo?.GetType().Name} y le causas {danno} de daño!";
+                if (!bicho.EstaVivo())
+                {
+                    resultado += "\n¡Has derrotado al bicho!";
+                }
+
+                return resultado;
+            }
+            return "No estás en una habitación.";
+        }
+
+        public void RecibirDanno(int danno)
+        {
+            this.Vidas -= danno;
+            if (this.Vidas <= 0)
+            {
+                this.Vidas = 0;
+                this.HeMuerto();
+            }
+            //Console.WriteLine($"[DEBUG] Personaje recibe {danno} de daño. Vidas restantes: {this.Vidas}");
         }
 
         // Movimiento cardinal

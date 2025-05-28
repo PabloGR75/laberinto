@@ -1,6 +1,3 @@
-// JuegoLaberinto.cs
-using System;
-using System.Collections.Generic;
 using Laberinto.Core.Models;
 using Laberinto.Core.Entidades;
 
@@ -25,7 +22,8 @@ namespace Laberinto.Core
             Laberinto = laberinto;
         }
 
-        // ---- Puertas ----
+        // ---------------------- Puertas ----------------------
+
         public void AbrirPuertas()
         {
             foreach (var puerta in Laberinto.ObtenerTodasLasPuertas())
@@ -58,7 +56,8 @@ namespace Laberinto.Core
             Console.WriteLine("¡Todas las puertas han sido cerradas!");
         }
 
-        // ---- Bichos ----
+        // ---------------------- Bichos ----------------------
+
         public void AgregarBicho(Bicho bicho)
         {
             Bichos.Add(bicho);
@@ -93,7 +92,8 @@ namespace Laberinto.Core
                 LanzarBicho(bicho);
         }
 
-        // ---- Personaje ----
+        // ---------------------- Personaje ----------------------
+
         public void AgregarPersonaje(string nombre)
         {
             Person = new Personaje(nombre);
@@ -111,7 +111,61 @@ namespace Laberinto.Core
             Laberinto?.Entrar(Person);
         }
 
-        // ---- Ataques y control de juego ----
+        // ---------------------- Ataques y control de juego ----------------------
+
+        public void EjecutarTurnoBichos()
+        {
+            Console.WriteLine("\nPresiona ENTER para que los bichos ejecuten sus turnos...");
+            Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine("----------------------------------------------------------");
+
+            var random = new Random();
+            foreach (var bicho in Bichos.Where(b => b.EstaVivo()))
+            {
+                // 50% de probabilidad de moverse o atacar
+                if (random.Next(2) == 0)
+                {
+                    // Moverse
+                    var orientaciones = bicho.Posicion?.Puertas.Keys.ToList();
+                    if (orientaciones?.Count > 0)
+                    {
+                        var orientacion = orientaciones[random.Next(orientaciones.Count)];
+                        var puerta = bicho.Posicion.Puertas[orientacion];
+
+                        if (puerta.EstaAbierta())
+                        {
+                            var habitacionDestino = puerta.OtroLado(bicho.Posicion) as Habitacion;
+                            if (habitacionDestino != null)
+                            {
+                                bicho.Posicion = habitacionDestino;
+                                Console.WriteLine($"- Bicho {bicho.Modo?.GetType().Name} se movió a Habitación {habitacionDestino.Num}");
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine($"- Bicho {bicho.Modo?.GetType().Name} intentó moverse pero la puerta estaba cerrada");
+                        }
+                    }
+                }
+                else
+                {
+                    // Atacar (si está en la misma habitación que el personaje)
+                    if (bicho.Posicion == Person.Posicion)
+                    {
+                        int danno = bicho.Vidas; // El bicho ataca con sus vidas como daño
+                        Person.RecibirDanno(danno);
+                        Console.WriteLine($"- ¡El bicho {bicho.Modo?.GetType().Name} te atacó y te quitó {danno} vidas!");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"- El bicho {bicho.Modo?.GetType().Name} decidió atacar pero no había nadie en la habitación");
+                    }
+                }
+            }
+            Console.WriteLine("----------------------------------------------------------");
+        }
+
         public void BuscarBicho()
         {
             var posPerson = Person?.Posicion;
@@ -131,7 +185,7 @@ namespace Laberinto.Core
         public void TerminarBicho(Bicho unBicho)
         {
             unBicho.Vidas = 0;
-            Console.WriteLine($"{unBicho} muere");
+            //Console.WriteLine($"{unBicho} muere");
             EstanTodosLosBichosMuertos();
         }
 
@@ -143,12 +197,14 @@ namespace Laberinto.Core
 
         public void MuerePersonaje()
         {
+            Console.WriteLine("----------------------------------------------------------");
             Console.WriteLine("Fin del juego: Ganan los bichos");
             TerminarBichos();
         }
 
         public void GanaPersonaje()
         {
+            Console.WriteLine("----------------------------------------------------------");
             Console.WriteLine("Fin del juego: gana el personaje");
         }
 
@@ -159,10 +215,10 @@ namespace Laberinto.Core
                 GanaPersonaje();
         }
 
-        // ---- Prototipo/Laberintos ----
+        // ---------------------- Prototipo/Laberintos ----------------------
+
         public LaberintoObj ClonarLaberinto()
         {
-            // ¡ATENCIÓN! Esto es un placeholder: implementar deep copy real
             // return Prototipo?.VeryDeepCopy();
             //throw new NotImplementedException("ClonarLaberinto: implementar deep copy");
             return Prototipo.DeepClone() as LaberintoObj;
@@ -174,33 +230,6 @@ namespace Laberinto.Core
             // throw new NotImplementedException("CrearNuevoLaberinto: implementar según tu lógica");
             return Prototipo.DeepClone() as LaberintoObj;
         }
-
-        // public LaberintoObj CrearLaberinto2Habitaciones()
-        // {
-        //     // Ejemplo de cómo crearlo, adaptar según tu estructura
-        //     var hab1 = new Habitacion(1);
-        //     var hab2 = new Habitacion(2);
-        //     var puerta = new Puerta();
-
-        //     hab1.Este = new Pared();
-        //     hab1.Oeste = new Pared();
-        //     hab1.Norte = new Pared();
-        //     hab1.Sur = puerta;
-
-        //     hab2.Este = new Pared();
-        //     hab2.Oeste = new Pared();
-        //     hab2.Sur = new Pared();
-        //     hab2.Norte = puerta;
-
-        //     puerta.Lado1 = hab1;
-        //     puerta.Lado2 = hab2;
-
-        //     var lab = new LaberintoObj();
-        //     lab.AgregarHabitacion(hab1);
-        //     lab.AgregarHabitacion(hab2);
-        //     Laberinto = lab;
-        //     return lab;
-        // }
 
         public Habitacion ObtenerHabitacion(int num)
         {

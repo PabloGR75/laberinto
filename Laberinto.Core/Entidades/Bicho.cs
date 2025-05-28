@@ -28,6 +28,17 @@ namespace Laberinto.Core.Entidades
             return Posicion?.ObtenerOrientacion();
         }
 
+        public void RecibirDanno(int danno)
+        {
+            this.Vidas -= danno;
+            if (this.Vidas <= 0)
+            {
+                this.Vidas = 0;
+                this.HeMuerto();
+            }
+            //Console.WriteLine($"[DEBUG] Bicho {this.Modo?.GetType().Name} recibe {danno} de daño. Vidas restantes: {this.Vidas}");
+        }
+
         // Comprobaciones rápidas de tipo de modo
         public bool EsAgresivo() => Modo is Agresivo;
         public bool EsPerezoso() => Modo is Perezoso;
@@ -48,6 +59,25 @@ namespace Laberinto.Core.Entidades
         public override void Actua()
         {
             EstadoEnte.Actua(this);
+        }
+        
+        public void MoverAleatoriamente()
+        {
+            if (this.Posicion is Habitacion hab && hab.Puertas.Count > 0)
+            {
+                var random = new Random();
+                var orientacion = hab.Puertas.Keys.ElementAt(random.Next(hab.Puertas.Count));
+                var puerta = hab.Puertas[orientacion];
+
+                if (puerta.EstaAbierta())
+                {
+                    var otraHabitacion = puerta.OtroLado(hab) as Habitacion;
+                    if (otraHabitacion != null)
+                    {
+                        this.Posicion = otraHabitacion;
+                    }
+                }
+            }
         }
 
         // Puede actuar (equivalente en Smalltalk)

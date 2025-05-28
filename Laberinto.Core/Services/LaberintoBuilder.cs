@@ -138,7 +138,7 @@ namespace Laberinto.Core.Services
 
             var bicho = new Bicho(new Agresivo());
             bicho.Vidas = 5;
-            bicho.Poder = 5;
+            bicho.Poder = 3;
             habitacion.Entrar(bicho);
             // Aquí podrías añadirlo a la colección de bichos del juego si hace falta
             juegoActual.Bichos.Add(bicho);
