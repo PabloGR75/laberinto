@@ -12,7 +12,7 @@ namespace Laberinto.Consola
         static void Main(string[] args)
         {
             Console.Clear();
-            string rutaJson = "Laberintos/lab4Hab4Bichos.json"; // Pon la ruta relativa correcta
+            string rutaJson = "Laberintos/lab4HabTodosElementos.json";
             if (!File.Exists(rutaJson))
             {
                 Console.WriteLine("No se encuentra el archivo del laberinto.");
@@ -77,10 +77,13 @@ namespace Laberinto.Consola
                 Console.WriteLine("3. Ir al Este");
                 Console.WriteLine("4. Ir al Oeste");
                 Console.WriteLine("5. Atacar");
-                Console.WriteLine("6. Inspeccionar habitación");
-                Console.WriteLine("7. Abrir todas las puertas");
-                Console.WriteLine("8. Cerrar todas las puertas");
-                Console.WriteLine("9. Ver puertas de la habitación actual");
+                Console.WriteLine("6. Inspeccionar habitación (No consume turno)");
+                Console.WriteLine("7. Abrir todas las puertas (No consume turno)");
+                Console.WriteLine("8. Cerrar todas las puertas (No consume turno)");
+                Console.WriteLine("9. Ver puertas de la habitación actual (No consume turno)");
+                Console.WriteLine("10. Esconderse en armario");
+                Console.WriteLine("11. Salir del armario");
+                Console.WriteLine("12. Tomar pócima");
                 Console.WriteLine("0. Salir");
 
                 Console.Write("\nElige acción: ");
@@ -95,22 +98,27 @@ namespace Laberinto.Consola
                         Console.WriteLine(juego.Person.MoverA(Norte.Instancia));
                         juego.EjecutarTurnoBichos();
                         break;
+
                     case "2":
                         Console.WriteLine(juego.Person.MoverA(Sur.Instancia));
                         juego.EjecutarTurnoBichos();
                         break;
+
                     case "3":
                         Console.WriteLine(juego.Person.MoverA(Este.Instancia));
                         juego.EjecutarTurnoBichos();
                         break;
+
                     case "4":
                         Console.WriteLine(juego.Person.MoverA(Oeste.Instancia));
                         juego.EjecutarTurnoBichos();
                         break;
+
                     case "5":
                         Console.WriteLine(juego.Person.AtacarEnHabitacionActual(juego));
                         juego.EjecutarTurnoBichos();
                         break;
+
                     case "6": // Inspeccionar habitación
                         var habitacionActual = juego.Person.Posicion as Habitacion;
                         if (habitacionActual != null)
@@ -118,6 +126,7 @@ namespace Laberinto.Consola
                             Console.WriteLine(habitacionActual.Describir(juego));
                         }
                         break;
+
                     case "7":
                         juego.AbrirTodasLasPuertas();
                         //Console.WriteLine("Estado de las puertas tras abrirlas:");
@@ -128,6 +137,7 @@ namespace Laberinto.Consola
                             //Console.WriteLine($"Puerta conecta {l1?.Num} y {l2?.Num}: {(puerta.EstaAbierta() ? "Abierta" : "Cerrada")}");
                         }
                         break;
+
                     case "8":
                         juego.CerrarTodasLasPuertas();
                         //Console.WriteLine("Estado de las puertas tras cerrarlas:");
@@ -138,6 +148,7 @@ namespace Laberinto.Consola
                             //Console.WriteLine($"Puerta conecta {l1?.Num} y {l2?.Num}: {(puerta.EstaAbierta() ? "Abierta" : "Cerrada")}");
                         }
                         break;
+
                     case "9":
                         var habActual = juego.Person.Posicion as Habitacion;
                         if (habActual != null)
@@ -159,9 +170,25 @@ namespace Laberinto.Consola
                         }
                         break;
 
+                    case "10": // Esconderse en armario
+                        Console.WriteLine(juego.Person.EsconderseEnArmario());
+                        juego.EjecutarTurnoBichos();
+                        break;
+
+                    case "11": // Salir del armario
+                        Console.WriteLine(juego.Person.SalirDelArmario());
+                        juego.EjecutarTurnoBichos();
+                        break;
+
+                    case "12":
+                        Console.WriteLine(juego.Person.TomarPocima());
+                        juego.EjecutarTurnoBichos();
+                        break;
+
                     case "0":
                         juegoActivo = false;
                         break;
+
                     default:
                         Console.WriteLine("Opción no válida.");
                         break;

@@ -13,5 +13,9 @@ namespace Laberinto.Core.Models
         void VisitParedBomba(ParedBomba paredBomba);
         void VisitHoja(Hoja hoja);
         void VisitContenedor(Contenedor contenedor);
+        void VisitPocima(Pocima pocima);
+        void VisitLampara(Lampara lampara);
+        void VisitCuadro(Cuadro cuadro);
+
     }
 }

@@ -9,7 +9,7 @@ namespace Laberinto.Core.Models
 
         public Bomba() : base()
         {
-            Activa = false;
+            Activa = true;
         }
 
         public Bomba(ElementoMapa em) : base(em)
@@ -41,11 +41,18 @@ namespace Laberinto.Core.Models
             Activa = true;
         }
 
+        public void Explotar(Personaje personaje)
+        {
+            if (!Activa) return;
+            personaje.RecibirDanno(1); // o personaje.Vidas--
+            Activa = false;
+        }
+
         public override void Entrar(Ente alguien)
         {
             if (Activa)
             {
-                Console.WriteLine($"{alguien} ha chocado con una bomba.");
+                //Console.WriteLine($"{alguien} ha chocado con una bomba.");
                 // Aquí puedes definir lógica de explosión o daño
             }
             else

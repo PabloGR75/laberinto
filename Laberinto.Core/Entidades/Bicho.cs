@@ -60,7 +60,7 @@ namespace Laberinto.Core.Entidades
         {
             EstadoEnte.Actua(this);
         }
-        
+
         public void MoverAleatoriamente()
         {
             if (this.Posicion is Habitacion hab && hab.Puertas.Count > 0)
@@ -95,14 +95,19 @@ namespace Laberinto.Core.Entidades
         // ¿Puede atacar? (ejemplo: busca personaje, puedes adaptar la lógica)
         public override void PuedeAtacar()
         {
-            // Acción real (por ejemplo)
+            if (Juego?.Person?.EstaEscondido ?? false) return;
             Juego?.BuscarPersonaje(this);
         }
 
         public override bool PuedeAtacarA(Ente objetivo)
         {
+            if (objetivo is Personaje personaje && personaje.EstaEscondido)
+                return false; // No atacar si el personaje está escondido
             // Devuelve si puede atacar a ese ente
-            return this.Juego != null && this.Posicion == objetivo.Posicion && this.EstaVivo() && objetivo.EstaVivo();
+            return this.Juego != null &&
+                this.Posicion == objetivo.Posicion &&
+                this.EstaVivo() &&
+                objetivo.EstaVivo();
         }
 
         // Avisar (termina el bicho en el juego)

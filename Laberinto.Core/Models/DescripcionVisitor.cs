@@ -54,5 +54,19 @@ namespace Laberinto.Core.Models
             Console.WriteLine("Contenedor");
         }
 
+        public void VisitPocima(Pocima pocima)
+        {
+            Console.WriteLine("Pócima");
+        }
+        public void VisitLampara(Lampara lampara)
+        {
+            Console.WriteLine("Lámpara");
+        }
+
+        public void VisitCuadro(Cuadro cuadro)
+        {
+            Console.WriteLine("Cuadro");
+        }
+
     }
 }

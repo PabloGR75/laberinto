@@ -1,5 +1,5 @@
 // Habitacion.cs
-using System;
+using System.Text;
 using Laberinto.Core.Services;
 using Laberinto.Core.Entidades;
 
@@ -89,6 +89,20 @@ namespace Laberinto.Core.Models
             return null;
         }
 
+        public string ExplotarBombasParaPersonaje(Personaje personaje)
+        {
+            var sb = new StringBuilder();
+            foreach (var hijo in Hijos)
+            {
+                if (hijo is Bomba bomba && bomba.Activa)
+                {
+                    bomba.Explotar(personaje);
+                    sb.AppendLine($"\n¡Bomba! {personaje.Nombre} pierde 1 vida. (Vidas restantes: {personaje.Vidas})");
+                }
+            }
+            return sb.ToString();
+        }
+
         public Tunel BuscarTunel()
         {
             // Recorre los hijos de la habitación y devuelve el primer túnel que encuentre
@@ -134,13 +148,59 @@ namespace Laberinto.Core.Models
             // ELEMENTOS
             sb.AppendLine("\nElementos:");
 
+            bool hayElementos = false;
+
             // - Bombas
-            var bombas = this.Hijos.OfType<Bomba>().Count();
-            if (bombas > 0)
+            var bombas = this.Hijos.OfType<Bomba>().ToList();
+            if (bombas.Count > 0)
             {
-                sb.AppendLine($"- ¡Hay {bombas} Bomba(s)! Ten cuidado");
+                hayElementos = true;
+                foreach (var bomba in bombas)
+                {
+                    sb.AppendLine($"- ¡Hay una Bomba! (Estado: {(bomba.Activa ? "ACTIVA" : "inactiva")})");
+                }
             }
-            else
+
+            // - Armarios
+            var armarios = this.Hijos.OfType<Armario>().ToList();
+            if (armarios.Any())
+            {
+                hayElementos = true;
+                foreach (var armario in armarios)
+                {
+                    sb.AppendLine($"- {armario} ({(armario.PersonajeEscondido ? "Ocupado" : "Disponible")})");
+                }
+            }
+
+            // - Pócimas
+            var pocimas = this.Hijos.OfType<Pocima>().ToList();
+            if (pocimas.Any())
+            {
+                hayElementos = true;
+                foreach (var pocima in pocimas)
+                {
+                    sb.AppendLine($"- {pocima} ({(pocima.Consumida ? "Consumida" : "Disponible")})");
+                }
+            }
+
+            // - Lámparas
+            var lamparas = this.Hijos.OfType<Lampara>().Count();
+            if (lamparas > 0)
+            {
+                hayElementos = true;
+                sb.AppendLine($"- Hay {lamparas} lámpara(s)");
+            }
+
+            // - Cuadros
+            var cuadros = this.Hijos.OfType<Cuadro>();
+            if (cuadros.Any())
+            {
+                hayElementos = true;
+                foreach (var cuadro in cuadros)
+                    sb.AppendLine($"- {cuadro}");
+            }
+
+            if (!hayElementos)
             {
                 sb.AppendLine("- No hay elementos especiales");
             }

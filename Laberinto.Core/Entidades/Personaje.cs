@@ -5,6 +5,8 @@ namespace Laberinto.Core.Entidades
     public class Personaje : Ente
     {
         public string Nombre { get; set; }
+        public bool EstaEscondido { get; private set; }
+        public Armario ArmarioActual { get; private set; }
 
         // Constructor que recibe nombre y opcionalmente el juego
         public Personaje(string nombre, JuegoLaberinto? juego = null) : base(juego)
@@ -27,6 +29,9 @@ namespace Laberinto.Core.Entidades
 
         public string AtacarEnHabitacionActual(JuegoLaberinto juego)
         {
+            if (EstaEscondido)
+                return "No puedes atacar mientras estás escondido.";
+
             if (this.Posicion is Habitacion hab)
             {
                 // Busca bichos en la habitación actual usando el método del juego
@@ -51,6 +56,51 @@ namespace Laberinto.Core.Entidades
                 return resultado;
             }
             return "No estás en una habitación.";
+        }
+
+        public string EsconderseEnArmario()
+        {
+            if (this.Posicion is Habitacion habitacionActual)
+            {
+                var armario = habitacionActual.Hijos.OfType<Armario>().FirstOrDefault();
+                if (armario != null)
+                {
+                    armario.EsconderPersonaje(this);
+                    EstaEscondido = true;
+                    ArmarioActual = armario; // Guardar referencia
+                    return $"Te has escondido en el armario {armario.Num}.";
+                }
+                return "No hay armarios en esta habitación.";
+            }
+            return "No estás en una habitación válida.";
+        }
+
+        public string TomarPocima()
+        {
+            if (EstaEscondido) return "No puedes usar pócimas estando escondido";
+
+            if (Posicion is Habitacion habitacion)
+            {
+                var pocima = habitacion.Hijos
+                    .OfType<Pocima>()
+                    .FirstOrDefault(p => !p.Consumida);
+
+                return pocima?.TomarPocima(this) ?? "No hay pócimas disponibles";
+            }
+            return "No estás en una habitación válida";
+        }
+
+        public string SalirDelArmario()
+        {
+            if (EstaEscondido && ArmarioActual != null)
+            {
+                ArmarioActual.SacarPersonaje(this);
+                EstaEscondido = false;
+                var numArmario = ArmarioActual.Num;
+                ArmarioActual = null; // Limpiar referencia
+                return $"Has salido del armario {numArmario}.";
+            }
+            return "No estás escondido en un armario.";
         }
 
         public void RecibirDanno(int danno)
@@ -130,6 +180,9 @@ namespace Laberinto.Core.Entidades
 
         public string MoverA(Orientacion orientacion)
         {
+            if (EstaEscondido)
+                return "No puedes moverte mientras estás escondido.";
+
             // Suponiendo que Posicion es la habitación actual (Habitacion)
             var habitacionActual = this.Posicion as Habitacion;
             if (habitacionActual == null)
@@ -149,7 +202,8 @@ namespace Laberinto.Core.Entidades
             if (otra != null)
             {
                 this.Posicion = otra;
-                return $"Cruzas la puerta {orientacion} y entras en Habitación {otra.Num}.";
+                var resultadoBombas = otra.ExplotarBombasParaPersonaje(this);
+                return $"Cruzas la puerta {orientacion} y entras en Habitación {otra.Num}. {resultadoBombas}";
             }
 
             return "Error: No se pudo mover a la otra habitación.";

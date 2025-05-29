@@ -68,6 +68,9 @@ namespace Laberinto.Core.Models
         public virtual bool EsDecorador => false;
         public virtual bool EsBomba => false;
         public virtual bool EsTesoro => false;
+        public virtual bool EsPocima => false;
+        public virtual bool EsLampara => false;
+        public virtual bool EsCuadro => false;
 
         public virtual void Recorrer(Action<ElementoMapa> bloque)
         {

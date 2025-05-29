@@ -136,6 +136,17 @@ namespace Laberinto.Core.Services
                 Builder.FabricarBombaEn(padre as Contenedor);
             else if (tipo == "tunel")
                 Builder.FabricarTunelEn(padre as Contenedor);
+            else if (tipo == "pocima")
+            {
+                int valor = unDic.TryGetValue("valor", out var v) ?
+                           v is JsonElement je ? je.GetInt32() :
+                           Convert.ToInt32(v) : 1; // Valor por defecto 1
+                Builder.FabricarPocimaEn(padre as Contenedor, valor);
+            }
+            else if (tipo == "lampara")
+                Builder.FabricarLamparaEn(padre as Contenedor);
+            else if (tipo == "cuadro")
+                Builder.FabricarCuadroEn(padre as Contenedor);
 
             // Procesar hijos recursivamente (si existen)
             if (unDic.ContainsKey("hijos"))

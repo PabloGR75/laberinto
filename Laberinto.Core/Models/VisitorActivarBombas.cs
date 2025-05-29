@@ -19,5 +19,9 @@ namespace Laberinto.Core.Visitor
         public void VisitParedBomba(ParedBomba paredBomba) { }
         public void VisitHoja(Hoja hoja) { }
         public void VisitContenedor(Contenedor contenedor) { }
+        public void VisitPocima(Pocima pocima) { }
+        public void VisitLampara(Lampara lampara) { }
+        public void VisitCuadro(Cuadro cuadro) { }
+
     }
 }

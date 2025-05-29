@@ -166,6 +166,22 @@ namespace Laberinto.Core.Services
                 FabricarBichoPerezoso(posicion);
         }
 
+        public virtual void FabricarPocimaEn(Contenedor contenedor, int valorCuracion = 1)
+        {
+            var pocima = new Pocima(valorCuracion);
+            contenedor.AgregarHijo(pocima);
+        }
+
+        public virtual void FabricarLamparaEn(Contenedor contenedor)
+        {
+            contenedor.AgregarHijo(new Lampara());
+        }
+
+        public virtual void FabricarCuadroEn(Contenedor contenedor)
+        {
+            contenedor.AgregarHijo(new Cuadro());
+        }
+        
         public virtual LaberintoObj ObtenerLaberinto()
         {
             return laberintoActual;

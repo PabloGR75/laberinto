@@ -151,7 +151,7 @@ namespace Laberinto.Core
                 else
                 {
                     // Atacar (si está en la misma habitación que el personaje)
-                    if (bicho.Posicion == Person.Posicion)
+                    if (bicho.Posicion == Person.Posicion && !Person.EstaEscondido)
                     {
                         int danno = bicho.Vidas; // El bicho ataca con sus vidas como daño
                         Person.RecibirDanno(danno);
@@ -176,6 +176,8 @@ namespace Laberinto.Core
 
         public void BuscarPersonaje(Bicho unBicho)
         {
+            if (Person?.EstaEscondido ?? false) return;
+
             var posBicho = unBicho.Posicion;
             var posPerson = Person?.Posicion;
             if (posBicho == posPerson && Person != null)
